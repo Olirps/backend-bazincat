@@ -22,6 +22,14 @@ class VendasController {
                 res.status(400).json({ erro: error.message });
             }
         }
+        static async consultaVendasDetalhado(req,res){
+            try {
+                const vendasRealizadas = await VendasService.consultaVendasDetalhado(req.params.id);
+                res.status(200).json(vendasRealizadas);
+            } catch (error) {
+                res.status(400).json({ erro: error.message });
+            }
+        }
         static async consultaItensPorVenda(req,res){
             try {
                 const vendasRealizadas = await VendasService.consultaItensPorVenda(req.params.id);

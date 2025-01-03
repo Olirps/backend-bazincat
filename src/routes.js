@@ -13,6 +13,7 @@ const UFMunicipiosController = require('./controllers/UFMunicipiosController'); 
 const GrupoProdutoController = require('./controllers/GrupoProdutoController'); // Ajuste o caminho conforme necessário
 const SubgrupoprodutoController = require('./controllers/SubgrupoprodutoController'); // Ajuste o caminho conforme necessário
 const VendasController = require('./controllers/VendasController'); // Ajuste o caminho conforme necessário
+const PagamentosController = require('./controllers/PagamentosController'); // Ajuste o caminho conforme necessário
 const ClientesController = require('./controllers/ClientesController'); // Ajuste o caminho conforme necessário
 
 
@@ -100,6 +101,10 @@ router.get('/municipios/mun/:id', UFMunicipiosController.obterMunicipioPorId);
 router.post('/vendas', VendasController.registraVenda);
 router.get('/vendas', VendasController.consultaVendas);
 router.get('/vendas/:id', VendasController.consultaItensPorVenda);
+router.get('/vendasdetalhes/:id', VendasController.consultaVendasDetalhado);
+router.post('/pagamentos', PagamentosController.registraPagamento);
+router.get('/pagamentos', PagamentosController.consultaPagamentos);
+router.get('/pagamentos/:id', PagamentosController.consultaPagamentoPorVenda);
 
 
 module.exports = router;
