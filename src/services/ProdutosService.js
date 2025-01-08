@@ -72,6 +72,7 @@ class ProdutosService {
                 let vlrVenda = Number(dadosProduto.vlrVenda);
                 let vUnCom = Number(dadosProduto.vUnCom);
                 dadosProduto.margemSobreVlrCusto = (vlrVenda / vUnCom) * 100;
+                dadosProduto.margemSobreVlrCustoAtacado = (dadosProduto.vlrVendaAtacado / vUnCom) * 100;
 
                 produto = await Produtos.create(dadosProduto);
 
@@ -134,6 +135,7 @@ class ProdutosService {
             let vlrVenda = Number(dadosAtualizados.vlrVenda);
             let vUnCom = Number(dadosAtualizados.vUnCom);
             dadosAtualizados.margemSobreVlrCusto = (vlrVenda / vUnCom) * 100;
+            dadosAtualizados.margemSobreVlrCustoAtacado = (dadosAtualizados.vlrVendaAtacado / vUnCom) * 100;
             
             await produto.update(dadosAtualizados);
             return produto;

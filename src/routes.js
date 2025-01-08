@@ -101,7 +101,7 @@ router.get('/municipios/mun/:id', UFMunicipiosController.obterMunicipioPorId);
 router.post('/vendas', VendasController.registraVenda);
 router.get('/vendas', VendasController.consultaVendas);
 router.get('/vendas/:id', VendasController.consultaItensPorVenda);
-router.get('/vendasdetalhes/:id', VendasController.consultaVendasDetalhado);
+router.get('/vendasdetalhes/', VendasController.consultaVendasDetalhado);
 router.post('/pagamentos', PagamentosController.registraPagamento);
 router.get('/pagamentos', PagamentosController.consultaPagamentos);
 router.get('/pagamentos/:id', PagamentosController.consultaPagamentoPorVenda);

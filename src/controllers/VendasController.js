@@ -24,7 +24,7 @@ class VendasController {
         }
         static async consultaVendasDetalhado(req,res){
             try {
-                const vendasRealizadas = await VendasService.consultaVendasDetalhado(req.params.id);
+                const vendasRealizadas = await VendasService.consultaVendasDetalhado(req.body);
                 res.status(200).json(vendasRealizadas);
             } catch (error) {
                 res.status(400).json({ erro: error.message });

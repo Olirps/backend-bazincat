@@ -9,16 +9,16 @@ class VendasService {
         const itensVenda = data.products;
         let pagamentos = data.pagamentos;
 
-        if(data.cliente_id === ''){
+        if (data.cliente_id === '') {
             data.cliente_id = 176
         }
         const vendaRegistrada = await Vendas.create(data)
-        
+
         pagamentos = pagamentos.map(pagamento => ({
             ...pagamento,
             venda_id: vendaRegistrada.id,
-          })); 
-        
+        }));
+
         Pagamentos.registraPagamento(pagamentos);
 
         // Mapeia os itens para associar com o ID da venda registrada
@@ -44,51 +44,70 @@ class VendasService {
                 },
                 order: [['id', 'DESC']] // Ordena pelo ID em ordem decrescente
             });
-    
+            console.log('Vendas: ' + JSON.stringify(vendas));
             // Iterar sobre cada venda para buscar as formas de pagamento
             for (let venda of vendas) {
                 // Busca as formas de pagamento relacionadas à venda
                 const formasPagamento = await Pagamentos.consultaPagamentoPorVenda(venda.id);
-    
+
                 // Extrai apenas o campo formaPagamento
                 venda.dataValues.formaPagamento = formasPagamento.map(fp => fp.formaPagamento);
             }
-    
+
             return vendas;
         } catch (err) {
             throw new Error('Erro ao buscar todas as vendas');
         }
     }
 
-    static async consultaVendasDetalhado(id) {
+    static async consultaVendasDetalhado() {
         try {
-            // Filtra as vendas com status igual a 0 (ativo)
+            // Busca todas as vendas com status ativo
             const vendas = await Vendas.findAll({
-                where: {
-                    status: 0 // Status igual a 0 (ativo)
-                },
+                where: { status: 0 }, // Status igual a 0 (ativo)
                 order: [['id', 'DESC']] // Ordena pelo ID em ordem decrescente
             });
     
             // Iterar sobre cada venda para buscar as formas de pagamento e valores pagos
+            const vendasDetalhadas = [];
             for (let venda of vendas) {
                 // Busca as formas de pagamento relacionadas à venda
                 const formasPagamento = await Pagamentos.consultaPagamentoPorVenda(venda.id);
     
-                // Estrutura detalhada: tipo de pagamento e valor pago
-                venda.dataValues.formaPagamento = formasPagamento.map(fp => ({
-                    formaPagamento: fp.formaPagamento,
-                    vlrPago: fp.vlrPago // Assume que `vlrPago` é o campo no modelo de pagamentos
-                }));
+                // Adiciona o desconto como um objeto dentro de formasPagamento
+                const formasPagamentoComDesconto = [
+                    ...formasPagamento.map(fp => ({
+                        formaPagamento: fp.formaPagamento,
+                        vlrPago: fp.vlrPago // Valor pago por tipo de pagamento
+                    })),
+                    venda.desconto > 0
+                        ? {
+                              formaPagamento: 'Desconto',
+                              vlrPago: -venda.desconto // Desconto representado como valor negativo
+                          }
+                        : null // Ignora se não houver desconto
+                ].filter(Boolean); // Remove valores nulos do array
+    
+                // Estrutura a venda detalhada
+                vendasDetalhadas.push({
+                    vendaId: venda.id,
+                    clienteId: venda.cliente_id,
+                    cliente: venda.cliente,
+                    dataVenda: venda.dataVenda,
+                    valorTotal: venda.valor_total,
+                    formasPagamento: formasPagamentoComDesconto
+                });
             }
     
-            return vendas;
+            return vendasDetalhadas;
         } catch (err) {
             throw new Error('Erro ao buscar todas as vendas detalhadas');
         }
     }
     
-    
+
+
+
 
     static async consultaItensPorVenda(id) {
         try {
