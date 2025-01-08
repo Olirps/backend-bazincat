@@ -15,7 +15,7 @@ const SubgrupoprodutoController = require('./controllers/SubgrupoprodutoControll
 const VendasController = require('./controllers/VendasController'); // Ajuste o caminho conforme necessário
 const PagamentosController = require('./controllers/PagamentosController'); // Ajuste o caminho conforme necessário
 const ClientesController = require('./controllers/ClientesController'); // Ajuste o caminho conforme necessário
-
+const LancamentosController = require('./controllers/LancamentosController'); // Ajuste o caminho conforme necessário
 
 
 // Aplica o middleware de autenticação globalmente a todas as rotas, exceto as rotas de login e registro
@@ -105,6 +105,10 @@ router.get('/vendasdetalhes/', VendasController.consultaVendasDetalhado);
 router.post('/pagamentos', PagamentosController.registraPagamento);
 router.get('/pagamentos', PagamentosController.consultaPagamentos);
 router.get('/pagamentos/:id', PagamentosController.consultaPagamentoPorVenda);
+
+//Rotas de Lancamentos
+router.post('/lancamentos', LancamentosController.registraLancamento);
+router.get('/lancamentos', LancamentosController.consultaLancamentos);
 
 
 module.exports = router;
