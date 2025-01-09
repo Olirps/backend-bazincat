@@ -2,6 +2,7 @@ const Produtos = require('../models/Produtos');
 const Vendas = require("../models/Vendas");
 const VendasItens = require('../models/VendasItens');
 const Pagamentos = require('../services/PagamentosService');
+const Lancamentos = require('../services/LancamentosService');
 
 class VendasService {
     static async registraVenda(data) {
@@ -44,7 +45,7 @@ class VendasService {
                 },
                 order: [['id', 'DESC']] // Ordena pelo ID em ordem decrescente
             });
-            console.log('Vendas: ' + JSON.stringify(vendas));
+
             // Iterar sobre cada venda para buscar as formas de pagamento
             for (let venda of vendas) {
                 // Busca as formas de pagamento relacionadas à venda
@@ -54,11 +55,52 @@ class VendasService {
                 venda.dataValues.formaPagamento = formasPagamento.map(fp => fp.formaPagamento);
             }
 
-            return vendas;
+            // Busca os lançamentos
+            const lancamentos = await Lancamentos.consultaLancamentos();
+
+            // Processa os lançamentos ajustando valores para crédito/débito
+            const lancamentosProcessados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
+                descricao: lancamento.descricao,
+                tipo: lancamento.tipo, // Ex.: 'crédito' ou 'débito'
+                valor: lancamento.tipo === 'credito' ? lancamento.valor : -lancamento.valor, // Crédito positivo, débito negativo
+                dataLancamento: lancamento.dataLancamento
+            }));
+
+            // Unifica as vendas e lançamentos em uma única lista
+            const transacoesUnificadas = [
+                ...vendas.map(venda => ({
+                    id: venda.id,
+                    descricao: `Venda #${venda.id}`,
+                    tipo: venda.formaPagamento, // Forma de pagamento da venda
+                    desconto: venda.desconto, // Desconto aplicado na venda
+                    totalQuantity: venda.totalQuantity, // Quantidade total de produtos
+                    valor: venda.totalPrice, // Valor da venda
+                    cliente: venda.cliente || 'Não Informado',
+                    data: venda.dataVenda,
+                })),
+                ...lancamentosProcessados.map(lancamento => ({
+                    id: lancamento.id,
+                    descricao: lancamento.descricao,
+                    tipo: lancamento.tipo, // Crédito ou Débito
+                    valor: lancamento.valor,
+                    desconto: 0, // Não se aplica a lançamentos
+                    data: lancamento.dataLancamento,
+                }))
+            ];
+
+            // Ordena as transações pela data de forma decrescente
+            transacoesUnificadas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+            // Retorna as transações unificadas
+            return {
+                transacoes: transacoesUnificadas
+            };
         } catch (err) {
             throw new Error('Erro ao buscar todas as vendas');
         }
     }
+
 
     static async consultaVendasDetalhado() {
         try {
@@ -82,30 +124,56 @@ class VendasService {
                     })),
                     venda.desconto > 0
                         ? {
-                              formaPagamento: 'Desconto',
-                              vlrPago: -venda.desconto // Desconto representado como valor negativo
-                          }
+                            formaPagamento: 'Desconto',
+                            vlrPago: -venda.desconto // Desconto representado como valor negativo
+                        }
                         : null // Ignora se não houver desconto
                 ].filter(Boolean); // Remove valores nulos do array
     
                 // Estrutura a venda detalhada
                 vendasDetalhadas.push({
-                    vendaId: venda.id,
-                    clienteId: venda.cliente_id,
-                    cliente: venda.cliente,
-                    dataVenda: venda.dataVenda,
-                    valorTotal: venda.valor_total,
-                    formasPagamento: formasPagamentoComDesconto
+                    id: venda.id,
+                    descricao: `Venda #${venda.id}`,
+                    tipo: 'Venda', // Tipo da transação
+                    valor: venda.valor_total, // Valor total da venda
+                    desconto: venda.desconto || 0, // Desconto aplicado na venda
+                    cliente: venda.cliente || 'Não Informado', // Cliente da venda
+                    data: venda.dataVenda,
+                    formasPagamento: formasPagamentoComDesconto // Formas de pagamento da venda
                 });
             }
     
-            return vendasDetalhadas;
+            // Busca os lançamentos
+            const lancamentos = await Lancamentos.consultaLancamentos();
+    
+            // Processa os lançamentos ajustando valores para crédito/débito
+            const lancamentosProcessados = lancamentos.map(lancamento => ({
+                id: lancamento.id,
+                descricao: lancamento.descricao,
+                tipo: lancamento.tipo, // Ex.: 'crédito' ou 'débito'
+                valor: lancamento.tipo === 'credito' ? lancamento.valor : -lancamento.valor, // Crédito positivo, débito negativo
+                desconto: 0, // Não se aplica a lançamentos
+                data: lancamento.dataLancamento
+            }));
+    
+            // Unifica as vendas detalhadas e os lançamentos em uma única lista
+            const transacoesUnificadas = [
+                ...vendasDetalhadas,
+                ...lancamentosProcessados
+            ];
+    
+            // Ordena as transações pela data de forma decrescente
+            transacoesUnificadas.sort((a, b) => new Date(b.data) - new Date(a.data));
+    
+            // Retorna as transações unificadas
+            return {
+                transacoes: transacoesUnificadas
+            };
         } catch (err) {
             throw new Error('Erro ao buscar todas as vendas detalhadas');
         }
     }
     
-
 
 
 

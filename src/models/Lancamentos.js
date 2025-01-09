@@ -31,9 +31,13 @@ const Lancamentos = sequelize.define('Lancamentos', {
         allowNull: false,
     },
     dataLancamento: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.STRING,
         allowNull: false,
     },
+    status: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    }
 }, {
     tableName: 'lancamentos',
     timestamps: true,

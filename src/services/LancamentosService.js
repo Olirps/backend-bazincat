@@ -10,6 +10,7 @@ class LancamentosService {
     static async registraLancamento(data) {
         try {
             // Cria um novo lançamento
+            data.status = 0; // Status igual a 0 (ativo)
             const lancamentoRegistrado = await Lancamentos.create(data);
             return lancamentoRegistrado;
         } catch (err) {
@@ -25,6 +26,9 @@ class LancamentosService {
     static async consultaLancamentos() {
         try {
             const lancamentos = await Lancamentos.findAll({
+                where : {
+                    status: 0 // Status igual a 0 (ativo)
+                },
                 order: [['id', 'DESC']], // Ordena pelo ID em ordem decrescente
             });
             return lancamentos;
