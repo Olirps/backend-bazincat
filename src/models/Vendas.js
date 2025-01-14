@@ -47,6 +47,14 @@ const Vendas = sequelize.define('Vendas', {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    motivo_cancelamento: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    dataCancelamento: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    }
 }, {
     tableName: 'vendas',
     timestamps: true,

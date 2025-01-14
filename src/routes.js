@@ -16,6 +16,7 @@ const VendasController = require('./controllers/VendasController'); // Ajuste o 
 const PagamentosController = require('./controllers/PagamentosController'); // Ajuste o caminho conforme necessário
 const ClientesController = require('./controllers/ClientesController'); // Ajuste o caminho conforme necessário
 const LancamentosController = require('./controllers/LancamentosController'); // Ajuste o caminho conforme necessário
+const RelatorioItensVendaController = require('./controllers/RelatorioItensVendaController'); // Ajuste o caminho conforme necessário
 
 
 // Aplica o middleware de autenticação globalmente a todas as rotas, exceto as rotas de login e registro
@@ -100,12 +101,15 @@ router.get('/municipios/mun/:id', UFMunicipiosController.obterMunicipioPorId);
 //Rotas de Vendas
 router.post('/vendas', VendasController.registraVenda);
 router.get('/vendas', VendasController.consultaVendas);
+router.put('/cancelavenda/:id', VendasController.cancelaVenda);
 router.get('/vendas/:id', VendasController.consultaItensPorVenda);
 router.get('/vendasdetalhes/', VendasController.consultaVendasDetalhado);
 router.post('/pagamentos', PagamentosController.registraPagamento);
 router.get('/pagamentos', PagamentosController.consultaPagamentos);
 router.get('/pagamentos/:id', PagamentosController.consultaPagamentoPorVenda);
 
+//Rotas de Lancamentos
+router.get('/itensvendidos', RelatorioItensVendaController.getRelatorioItensVenda);
 //Rotas de Lancamentos
 router.post('/lancamentos', LancamentosController.registraLancamento);
 router.get('/lancamentos', LancamentosController.consultaLancamentos);
