@@ -71,7 +71,7 @@ class VendasService {
             const transacoesUnificadas = [
                 ...vendas.map(venda => ({
                     id: venda.id,
-                    descricao: `Venda #${venda.id}`,
+                    descricao: 'Venda',
                     tipo: venda.formaPagamento, // Forma de pagamento da venda
                     desconto: venda.desconto, // Desconto aplicado na venda
                     totalQuantity: venda.totalQuantity, // Quantidade total de produtos
