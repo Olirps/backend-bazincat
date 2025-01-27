@@ -202,6 +202,18 @@ class VendasService {
         }
     }
 
+    static async consultaVendaPorId(id) {
+        try {
+            const venda = await Vendas.findByPk(id);
+            if (!venda) {
+                throw new Error('Venda não encontrada');
+            }
+            return venda;
+        } catch (error) {
+            throw new Error('Erro ao consultar venda: ' + error.message);
+        }
+    }
+    
     static async cancelaVenda(id,dadosCancelamento) {
         try {
             const venda = await Vendas.findByPk(id);

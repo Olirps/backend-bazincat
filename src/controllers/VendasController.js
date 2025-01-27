@@ -40,10 +40,18 @@ class VendasController {
     }
     // Atualização de um produto por ID
     static async cancelaVenda(req, res) {
-
         try {
             const vendaCancelada = await VendasService.cancelaVenda(req.params.id, req.body);
             res.status(200).json(vendaCancelada);
+        } catch (error) {
+            res.status(400).json({ erro: error.message });
+        }
+    }
+    // Consultar Venda por ID
+    static async consultaVendaPorId(req, res) {
+        try {
+            const venda = await VendasService.consultaVendaPorId(req.params.id);
+            res.status(200).json(venda);
         } catch (error) {
             res.status(400).json({ erro: error.message });
         }
