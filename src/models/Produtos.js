@@ -13,6 +13,10 @@ const Produtos = sequelize.define('Produtos', {
         type: DataTypes.STRING,
         allowNull: true,
     },
+    cod_interno: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+    },
     cEAN: {
         type: DataTypes.STRING,
         allowNull: true,

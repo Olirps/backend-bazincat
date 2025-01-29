@@ -123,7 +123,14 @@ class ProdutosService {
             if (!produto) {
                 throw new Error('Produto não encontrado');
             }
-            if (dadosAtualizados.cEAN !== 'SEM GTIN') {
+            
+            if (dadosAtualizados.cod_interno) {
+                const produtoExistente = await Produtos.findOne({ where: { cod_interno: dadosAtualizados.cod_interno } });
+                if (produtoExistente && produtoExistente.id !== id) {
+                    throw new Error(`Produto com código interno: ${dadosAtualizados.cod_interno} já cadastrado`);
+                }
+            }
+            if (dadosAtualizados.cEAN !== 'SEM GTIN' && dadosAtualizados.cEAN !== "") {
                 const produtoExistente = await Produtos.findOne({ where: { cEAN: dadosAtualizados.cEAN } });
                 if (produtoExistente) {
                     if (id != produtoExistente.id) {
