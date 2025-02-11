@@ -65,9 +65,19 @@ class ProdutosService {
                 }
 
             } else {
-                const produtoExistente = await Produtos.findOne({ where: { cEAN: dadosProduto.cEAN } });
-                if (produtoExistente) {
-                    throw new Error(`Produto: ${(dadosProduto.cEAN)} já cadastrado`);
+                if (dadosProduto.cod_interno) {
+                    const produtoExistente = await Produtos.findOne({ where: { cod_interno: dadosProduto.cod_interno } });
+                    if (produtoExistente && produtoExistente.id !== id) {
+                        throw new Error(`Produto com código interno: ${dadosProduto.cod_interno} já cadastrado`);
+                    }
+                }
+                if (dadosProduto.cEAN !== 'SEM GTIN' && dadosProduto.cEAN !== "") {
+                    const produtoExistente = await Produtos.findOne({ where: { cEAN: dadosProduto.cEAN } });
+                    if (produtoExistente) {
+                        if (id != produtoExistente.id) {
+                            throw new Error(`Produto: ${(dadosProduto.cEAN)} já cadastrado`);
+                        }
+                    }
                 }
                 let vlrVenda = Number(dadosProduto.vlrVenda);
                 let vUnCom = Number(dadosProduto.vUnCom);
@@ -119,21 +129,25 @@ class ProdutosService {
     // Atualiza um produto por ID
     static async atualizarProduto(id, dadosAtualizados) {
         try {
+
             const produto = await Produtos.findByPk(id);
+
             if (!produto) {
                 throw new Error('Produto não encontrado');
             }
-            
+
             if (dadosAtualizados.cod_interno) {
                 const produtoExistente = await Produtos.findOne({ where: { cod_interno: dadosAtualizados.cod_interno } });
-                if (produtoExistente && produtoExistente.id !== id) {
-                    throw new Error(`Produto com código interno: ${dadosAtualizados.cod_interno} já cadastrado`);
+                if (produtoExistente) {
+                    if (Number(produtoExistente.id) !== Number(id)) {
+                        throw new Error(`Produto com código interno: ${dadosAtualizados.cod_interno} já cadastrado`);
+                    }
                 }
             }
             if (dadosAtualizados.cEAN !== 'SEM GTIN' && dadosAtualizados.cEAN !== "") {
                 const produtoExistente = await Produtos.findOne({ where: { cEAN: dadosAtualizados.cEAN } });
                 if (produtoExistente) {
-                    if (id != produtoExistente.id) {
+                    if (Number(produtoExistente.id) !== Number(id)) {
                         throw new Error(`Produto: ${(dadosAtualizados.cEAN)} já cadastrado`);
                     }
                 }
@@ -143,7 +157,9 @@ class ProdutosService {
             let vUnCom = Number(dadosAtualizados.vUnCom);
             dadosAtualizados.margemSobreVlrCusto = (vlrVenda / vUnCom) * 100;
             dadosAtualizados.margemSobreVlrCustoAtacado = (dadosAtualizados.vlrVendaAtacado / vUnCom) * 100;
-            
+
+            console.log('Dados para UPDATE: ' + JSON.stringify(dadosAtualizados));
+
             await produto.update(dadosAtualizados);
             return produto;
         } catch (error) {
