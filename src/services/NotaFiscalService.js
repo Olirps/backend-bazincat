@@ -6,11 +6,14 @@ const NotaFiscal = require('../models/NotaFiscal');
 const { dividirNotaFiscal } = require('../util/importaNotaFiscal');
 const Fornecedores = require('../models/Fornecedores');
 const Produtos = require('../models/Produtos');
+const PagamentosNF = require('../models/PagamentosNF');
 const ProdutosService = require('../services/ProdutosService');
 const FornecedoresService = require('../services/FornecedoresService');
 const getInformacoesProduto = require("../util/informacoesProduto");
 const MovimentacoesEstoque = require("../models/MovimentacoesEstoque");
 const ItensNaoIdentificados = require("../models/ItensNaoIdentificados");
+const Financeiro = require('../models/Financeiro');
+
 const { Op } = require('sequelize');
 
 const fornecedoresCriados = [];
@@ -19,7 +22,7 @@ let fornecedorCreated;
 class NotaFiscalService {
   static async criarNotaFiscal(xmlData, quantidadeNf) {
     //const transaction = await sequelize.transaction();
-    
+
     try {
 
       const notasFiscais = xmlData.nfeProc.NFe;
@@ -30,7 +33,7 @@ class NotaFiscalService {
       let fornecedor;
       await mutex.runExclusive(async () => {
         fornecedor = await Fornecedores.findOne({ where: { cpfCnpj: dadosXml.fornecedor.CNPJ } });
-        
+
         if (!fornecedor) {
           const originalJson = dadosXml.fornecedor;
           const mapping = {
@@ -48,7 +51,7 @@ class NotaFiscalService {
           };
 
           const normalizedJson = normalizeJson(flattenJson(originalJson), mapping);
-          
+
           fornecedorCreated = await FornecedoresService.criarFornecedores(normalizedJson);
           adicionarFornecedor(fornecedorCreated.cpfCnpj);
           dadosXml.codFornecedor = fornecedorCreated.id;
@@ -71,6 +74,38 @@ class NotaFiscalService {
       const nfCreated = await NotaFiscal.create(jsonCreateNF);
       // Processa produtos associados
 
+      const pagamentosnf = { nota_id: nfCreated.id, ...dadosXml.pagamento }
+
+      if(pagamentosnf){
+        
+      }
+      // Transformando para um objeto único
+      const transformedData = {
+        nota_id: nfCreated.id,
+        ...pagamentosnf.detPag,
+        ...pagamentosnf.detPag?.card,
+        ...pagamentosnf?.vTroco,
+        ...pagamentosnf?.tPag
+      };
+
+      const pagamentos = Object.keys(pagamentosnf.detPag)
+        .filter(key => !isNaN(key)) // Filtra apenas as chaves numéricas
+        .map(key => ({
+          ...pagamentosnf.detPag[key], // Pega os dados do pagamento
+          nota_id: nfCreated.id, // Adiciona o ID da nota
+        }));
+
+      if (pagamentos.length > 0) {
+        for (const data of pagamentos) {
+          await PagamentosNF.create(data);
+        }
+      } else {
+        await PagamentosNF.create(transformedData); // Caso não haja pagamentos, ainda cria um registro
+      }
+
+
+      //const cadastrapg = await PagamentosNF.create(transformedData)
+
       let produtoInfo = getInformacoesProduto(xmlData);
 
       if (produtoInfo && typeof produtoInfo === 'object') {
@@ -83,16 +118,27 @@ class NotaFiscalService {
 
       await verificarProdutos(produtoInfo);
 
-      //await transaction.commit();
+      // Cria contas a pagar
+      const contasPagarData = {
+        nota_id: nfCreated.id,
+        descricao: `Nota Fiscal ${nfCreated.nNF} - ${dadosXml.fornecedor.xFant}`,
+        tipo: 'débito',
+        tipo_lancamento: 'automatico',
+        fornecedor_id: nfCreated.codFornecedor,
+        valor: nfCreated.vNF,
+        data_lancamento: new Date(new Date().setHours(new Date().getHours() - 4)).toISOString().slice(0, 19).replace('T', ' '),
+        status: 'aberta'
+      };
+
+      const movimentacao_financeira = await Financeiro.create(contasPagarData);
+
       return nfCreated;
     } catch (err) {
-      //await transaction.rollback();
       throw new Error(err.message);
     }
   }
 
   static async criarNotaFiscalManual(dados) {
-    //const transaction = await sequelize.transaction();
     try {
       const notaFiscalExistente = await existeNF(dados.nNF, dados.codFornecedor);
       if (notaFiscalExistente) {
@@ -101,8 +147,25 @@ class NotaFiscalService {
       dados.lancto = 'manual';
       dados.status = 'aberta';
       dados.dhEmi = dados.dataEmissao;
-      dados.dhSaiEnt =dados.dataSaida;
+      dados.dhSaiEnt = dados.dataSaida;
       const nfCreated = await NotaFiscal.create(dados);
+
+      const fornecedor = await Fornecedores.findOne({ where: { id: nfCreated.codFornecedor } });
+
+      // Cria contas a pagar
+      const contasPagarData = {
+        nota_id: nfCreated.id,
+        descricao: `Nota Fiscal ${nfCreated.nNF} - ${fornecedor.nomeFantasia}`,
+        tipo: 'débito',
+        tipo_lancamento: 'automatico',
+        fornecedor_id: nfCreated.codFornecedor,
+        valor: nfCreated.vNF,
+        data_lancamento: new Date(new Date().setHours(new Date().getHours() - 4)).toISOString().slice(0, 19).replace('T', ' '),
+        status: 'aberta'
+      };
+
+      const movimentacao_financeira = await Financeiro.create(contasPagarData);
+
       //await transaction.commit();
       return nfCreated;
     } catch (err) {
@@ -114,7 +177,22 @@ class NotaFiscalService {
   // Métodos de CRUD para Nota Fiscal
   static async getAllNotasFiscais() {
     try {
-      return await NotaFiscal.findAll();
+      const notas = await NotaFiscal.findAll({
+        where: {
+          status: {
+            [Op.notIn]: ['cancelada'] // Exclui registros com status "cancelada" ou "liquidado"
+          }
+        },
+        order: [['id', 'DESC']]
+      });
+
+      for (let nota of notas) {
+        const fornecedor = await Fornecedores.findOne({ where: { id: nota.codFornecedor } });
+        nota.dataValues.cpfCnpj = fornecedor ? fornecedor.cpfCnpj : null;
+        nota.dataValues.nomeFornecedor = fornecedor ? fornecedor.nome : null;
+      }
+      return notas;
+
     } catch (err) {
       throw new Error('Erro ao buscar todas as notas fiscais');
     }
@@ -122,21 +200,32 @@ class NotaFiscalService {
 
   static async getNotaFiscalById(id) {
     try {
-      return await NotaFiscal.findByPk(id);
+      let notas = await NotaFiscal.findByPk(id);
+      let notaEncontrada = notas;
+
+      const fornecedor = await Fornecedores.findOne({ where: { id: notas.codFornecedor } });
+      notas.dataValues.nomeFantasia = fornecedor ? fornecedor.nomeFantasia : null;
+      notas.dataValues.nomeFornecedor = fornecedor ? fornecedor.nome : null;
+
+      return notas;
     } catch (err) {
       throw new Error('Erro ao buscar a nota fiscal por ID');
     }
   }
-  
+
   static async updateNotaFiscal(id, notaFiscalData) {
     try {
       const notaFiscal = await NotaFiscal.findByPk(id);
       if (!notaFiscal) {
         return null;
       }
-      return await notaFiscal.update(notaFiscalData);
+
+      await notaFiscal.update(notaFiscalData);
+
+      return notaFiscal
     } catch (err) {
-      throw new Error('Erro ao atualizar a nota fiscal');
+
+      throw new Error(`Erro ao atualizar a nota fiscal: ${err.message}`);
     }
   }
 
@@ -156,7 +245,7 @@ class NotaFiscalService {
 
 async function existeNF(nroNf, codFornecedor) {
   const exist = await NotaFiscal.findOne({
-    where: { nNF: nroNf, codFornecedor: codFornecedor ,status: { [Op.ne]: 'cancelada' }}
+    where: { nNF: nroNf, codFornecedor: codFornecedor, status: { [Op.ne]: 'cancelada' } }
   });
   return !!exist;
 }
@@ -229,16 +318,16 @@ async function adicionarFornecedor(cnpj) {
 
 async function consolidarProdutosPorCEAN(produto) {
   const produtosConsolidados = {};
-  
+
   const { cEAN, qCom, vProd } = produto;
-  
+
   if (!produtosConsolidados[cEAN]) {
     produtosConsolidados[cEAN] = { qCom: 0, vProd: 0 };
   }
-  
+
   produtosConsolidados[cEAN].qCom += qCom;
   produtosConsolidados[cEAN].vProd += vProd;
-  
+
   return produtosConsolidados;
 }
 

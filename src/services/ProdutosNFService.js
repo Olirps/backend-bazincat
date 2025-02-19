@@ -116,6 +116,36 @@ class ProdutosNFService {
 
     }
 
+    static async obterQuantidadeRestanteParaVinculo(produto_id) {
+        try {
+            // Buscar a quantidade total do produto na nota fiscal
+            const movimentacao = await MovimentacoesEstoque.findOne({
+                where: { id: produto_id, status: 0 },
+                attributes: ['quantidade']
+            });
+
+            if (!movimentacao) {
+                throw new Error('Produto não encontrado no estoque.');
+            }
+
+            // Buscar a quantidade já vinculada ao produto
+            const vinculos = await VinculoProdVeiculo.findAll({
+                where: { produto_id },
+                attributes: ['quantidade']
+            });
+
+            // Calcular a quantidade já vinculada somando os vínculos
+            const quantidadeVinculada = vinculos.reduce((acc, vinculo) => acc + parseFloat(vinculo.quantidade), 0);
+
+            // Calcular a quantidade restante
+            const quantidadeRestante = movimentacao.quantidade - quantidadeVinculada;
+
+            return { quantidadeTotal: movimentacao.quantidade, quantidadeVinculada, quantidadeRestante };
+        } catch (error) {
+            console.error('Erro ao obter a quantidade restante para vínculo:', error);
+            throw new Error('Erro ao obter a quantidade restante para vínculo.');
+        }
+    }
 
 }
 

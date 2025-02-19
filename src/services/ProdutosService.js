@@ -81,8 +81,8 @@ class ProdutosService {
                 }
                 let vlrVenda = Number(dadosProduto.vlrVenda);
                 let vUnCom = Number(dadosProduto.vUnCom);
-                dadosProduto.margemSobreVlrCusto = (vlrVenda / vUnCom) * 100;
-                dadosProduto.margemSobreVlrCustoAtacado = (dadosProduto.vlrVendaAtacado / vUnCom) * 100;
+                dadosProduto.margemSobreVlrCusto = ((vlrVenda / vUnCom) * 100) / 2;
+                dadosProduto.margemSobreVlrCustoAtacado = ((dadosProduto.vlrVendaAtacado / vUnCom) * 100) / 2;
 
                 produto = await Produtos.create(dadosProduto);
 
@@ -106,7 +106,6 @@ class ProdutosService {
     // Obtém todos os produtos
     static async listarProdutos(filtro) {
         try {
-            //console.log('Entrou FindAll Produtos: '+ JSON.stringify(filtro));
             return await Produtos.findAll({ where: filtro });
         } catch (error) {
             throw new Error('Erro ao listar os produtos: ' + error.message);
@@ -155,10 +154,8 @@ class ProdutosService {
 
             let vlrVenda = Number(dadosAtualizados.vlrVenda);
             let vUnCom = Number(dadosAtualizados.vUnCom);
-            dadosAtualizados.margemSobreVlrCusto = (vlrVenda / vUnCom) * 100;
-            dadosAtualizados.margemSobreVlrCustoAtacado = (dadosAtualizados.vlrVendaAtacado / vUnCom) * 100;
-
-            console.log('Dados para UPDATE: ' + JSON.stringify(dadosAtualizados));
+            dadosAtualizados.margemSobreVlrCusto = ((vlrVenda / vUnCom) * 100) / 2;
+            dadosAtualizados.margemSobreVlrCustoAtacado = ((dadosAtualizados.vlrVendaAtacado / vUnCom) * 100) / 2;
 
             await produto.update(dadosAtualizados);
             return produto;

@@ -16,6 +16,14 @@ const Fornecedores = sequelize.define('Fornecedores', {
     type: DataTypes.STRING(150),
     allowNull: true,
   },
+  fornecedor_contato: {
+    type: DataTypes.STRING(150),
+    allowNull: true,
+  },
+  inscricaoestadual: {
+    type: DataTypes.STRING(25),
+    allowNull: true
+  },
   cpfCnpj: {
     type: DataTypes.STRING(14),
     allowNull: false,
@@ -38,7 +46,7 @@ const Fornecedores = sequelize.define('Fornecedores', {
     allowNull: false
   },
   numero: {
-    type: DataTypes.STRING(8),
+    type: DataTypes.STRING(20),
     allowNull: false
   },
   bairro: {
@@ -57,6 +65,14 @@ const Fornecedores = sequelize.define('Fornecedores', {
     type: DataTypes.STRING(8),
     allowNull: false
   },
+  tipo_fornecedor: {
+    type: DataTypes.ENUM('peça', 'maquinario', 'suplemento', 'transporte', 'servico'),
+    allowNull: true,
+  },
+  status: {
+    type: DataTypes.ENUM('S', 'N'),
+    allowNull: true
+  }
   
 }, {
   tableName: 'fornecedores',

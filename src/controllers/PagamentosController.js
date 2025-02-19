@@ -5,7 +5,6 @@ const { Op } = require('sequelize');
 class PagamentosController {
         // Criação de um novo produto
         static async registraPagamento(req, res) {
-          //  console.log('Entrou no Controller: '+JSON.stringify(req.body))
             try {
                 const pagamentoRegistrado = await PagamentosService.registraPagamento(req.body);
                 res.status(201).json(pagamentoRegistrado);

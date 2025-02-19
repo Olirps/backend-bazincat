@@ -5,15 +5,12 @@ class PagamentosService {
 
         const venda = data;
 
-        console.log('Pagamentos: '+JSON.stringify(venda));
-
         const PagamentoRegistrado = venda.map((pgto) => ({
             venda_id: pgto.venda_id, // ID da venda registrada
             vlrPago: pgto.valor, // Valor Pago por tipo de pgto 
             formaPagamento: pgto.forma // forma do pagamento
         }));
 
-        // console.log('Entrou no Service: '+JSON.stringify(data))
         //const PagamentoRegistrado = await Pagamentos.create(data)
 
         // Mapeia os itens para associar com o ID da venda registrada
@@ -27,7 +24,6 @@ class PagamentosService {
 
     static async consultaPagamentos() {
         try {
-            console.log('Entrou para pegar os pagamentos')
             // Filtra as vendas com status igual a 0 (ativo)
             return await Pagamentos.findAll({
                 where: {

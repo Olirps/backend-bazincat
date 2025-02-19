@@ -12,22 +12,6 @@ const GrupoAcesso = sequelize.define('GrupoAcesso',{
     nome: {
         type: DataTypes.STRING,
         allowNull: false
-    },
-    view: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    edit: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    delete: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
-    },
-    insert: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
     }
 }, {
 

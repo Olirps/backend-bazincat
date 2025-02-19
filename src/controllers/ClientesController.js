@@ -65,6 +65,17 @@ class ClientesController {
     }
   }
 
+  
+  static async obterClientesPorFiltro(req, res) {
+    try {
+      const filtros = req.query; // Obtém os filtros do corpo da requisição
+      const clientes = await ClientesService.obterClientesPorFiltro(filtros);
+      res.status(200).json(clientes);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+  
   static async atualizarCliente(req, res) {
     try {
       // Dentro de um endpoint, por exemplo:

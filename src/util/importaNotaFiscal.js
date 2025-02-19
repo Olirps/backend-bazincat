@@ -14,6 +14,8 @@ async function dividirNotaFiscal(jsonData) {
     const nfe = data.nfeProc?.NFe?.infNFe?.ide;
     const nfeFornecedor = data.nfeProc?.NFe?.infNFe?.emit;
     const nfeImpostoNf = data.nfeProc?.NFe?.infNFe?.total?.ICMSTot;
+    const nfePagamento = data.nfeProc?.NFe?.infNFe?.pag;
+
 
 
     if (!nfe || !nfeFornecedor) {
@@ -68,7 +70,8 @@ async function dividirNotaFiscal(jsonData) {
     // Retorne os campos necessários
     return {
       informacoesIde,
-      fornecedor: fornecedor // Incluindo as informações do fornecedor no resultado
+      fornecedor: fornecedor,
+      pagamento: nfePagamento
     };
   } catch (error) {
     console.error('Erro ao dividir Nota Fiscal:', error);

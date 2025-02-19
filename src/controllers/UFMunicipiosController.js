@@ -36,7 +36,7 @@ class UFMunicipiosController {
 
   static async obterUFPorId(req, res) {
     try {
-      const codIBGE = { codIBGE: req.params.id }
+      const codIBGE = { codIBGE: req.params.codIBGE }
       const uf = await UFMunicipiosService.obterUFPorId(codIBGE);
       if (uf) {
         res.status(200).json(uf);

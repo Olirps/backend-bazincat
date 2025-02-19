@@ -56,7 +56,7 @@ class ClientesService {
       throw new Error(err.message);
     }
   }
-  
+
   static async obterTodosClientes(filtro) {
     try {
       return await Clientes.findAll({ where: filtro });
@@ -68,6 +68,25 @@ class ClientesService {
   static async obterClientePorId(id) {
     try {
       return await Clientes.findByPk(id);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
+
+  static async obterClientesPorFiltro(query) {
+    try {
+      const filtro = {};
+      if (query.razaoSocial.trim()) {
+        filtro.nome = { [Op.like]: `%${query.razaoSocial.trim()}%` };
+      }
+      if (query.nomeFantasia.trim()) {
+        filtro.nomeFantasia = { [Op.like]: `%${query.nomeFantasia.trim()}%` };
+      }
+      if (query.cpfCnpj.trim()) {
+        filtro.cpfCnpj = { [Op.like]: `%${query.cpfCnpj.trim()}%` };
+      }
+
+      return await Clientes.findAll({ where: filtro });
     } catch (err) {
       throw new Error(err.message);
     }

@@ -4,41 +4,41 @@ const { limpaDocumento } = require('../util/util');
 const { Op } = require('sequelize');
 
 class FornecedoresController {
-  
+
   // src/controllers/FornecedoresController.js
 
   static async criarFornecedores(req, res) {
     try {
 
-    // Dentro de um endpoint, por exemplo:
-    const fornecedor = limpaDocumento(req.body);
+      // Dentro de um endpoint, por exemplo:
+      const fornecedor = limpaDocumento(req.body);
 
-    // Passar os dados limpos para o serviço
-    const fornecedores = await FornecedoresService.criarFornecedores(fornecedor);
+      // Passar os dados limpos para o serviço
+      const fornecedores = await FornecedoresService.criarFornecedores(fornecedor);
 
-    // Retornar a resposta com o status 201 (Criado)
-    res.status(201).json(fornecedores);
+      // Retornar a resposta com o status 201 (Criado)
+      res.status(201).json(fornecedores);
     } catch (err) {
       // Retornar erro com status 400 (Solicitação Incorreta)
       res.status(400).json({ error: err.message });
     }
   }
-  
+
   static async obterTodasFornecedores(req, res) {
     try {
       const { cpfCnpj, nome } = req.query; // Obtém os parâmetros da requisição
       const where = {};
-  
+
       // Aplica filtro de CPF/CNPJ se fornecido
       if (cpfCnpj) {
         where.cpfCnpj = { [Op.like]: `%${cpfCnpj}%` };
       }
-  
+
       // Aplica filtro de nome se fornecido
       if (nome) {
         where.nome = { [Op.like]: `%${nome}%` };
       }
-  
+
       const fornecedores = await FornecedoresService.obterTodasFornecedores(where);
       res.status(200).json(fornecedores);
     } catch (err) {
@@ -58,6 +58,16 @@ class FornecedoresController {
     }
   }
 
+  static async obterFornecedoresPorFiltro(req, res) {
+    try {
+      const filtros = req.query; // Obtém os filtros do corpo da requisição
+      const fornecedores = await FornecedoresService.obterFornecedoresPorFiltro(filtros);
+      res.status(200).json(fornecedores);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+  
   static async atualizarFornecedores(req, res) {
     try {
       // Dentro de um endpoint, por exemplo:

@@ -6,7 +6,6 @@ const Lancamentos = require('../services/LancamentosService');
 
 class VendasService {
     static async registraVenda(data) {
-        // console.log('Entrou no Service: '+JSON.stringify(data))
         const itensVenda = data.products;
         let pagamentos = data.pagamentos;
 
