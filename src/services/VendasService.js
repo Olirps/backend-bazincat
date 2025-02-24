@@ -1,6 +1,7 @@
 const Produtos = require('../models/Produtos');
 const Vendas = require("../models/Vendas");
 const VendasItens = require('../models/VendasItens');
+const MovimentacoesEstoque = require('../models/MovimentacoesEstoque');
 const Pagamentos = require('../services/PagamentosService');
 const Lancamentos = require('../services/LancamentosService');
 
@@ -10,9 +11,9 @@ class VendasService {
         let pagamentos = data.pagamentos;
 
         if (data.cliente_id === '') {
-            data.cliente_id = 176
+            data.cliente_id = 176;
         }
-        const vendaRegistrada = await Vendas.create(data)
+        const vendaRegistrada = await Vendas.create(data);
 
         pagamentos = pagamentos.map(pagamento => ({
             ...pagamento,
@@ -29,9 +30,20 @@ class VendasService {
             vlrVenda: item.total            // Preço do produto
         }));
 
+        // Registra a movimentação de estoque para cada produto vendido
+        for (const produto of itensVendaRegistrada) {
 
-        const itensVendidos = await VendasItens.bulkCreate(itensVendaRegistrada)
-
+            await MovimentacoesEstoque.create({
+                produto_id: produto.produto_id,
+                quantidade: produto.quantity, // Quantidade negativa para indicar saída
+                tipo_movimentacao: 'saida',      // Tipo de movimentação
+                venda_id: vendaRegistrada.id,    // ID da venda associada
+                valor_unit: produto.vlrVenda,    // ID da venda associada
+                data_movimentacao: new Date(),    // Data e hora atual
+                status :0
+            });
+        }
+        const itensVendidos = await VendasItens.bulkCreate(itensVendaRegistrada);
         return vendaRegistrada;
     }
 
@@ -108,13 +120,13 @@ class VendasService {
                 where: { status: 0 }, // Status igual a 0 (ativo)
                 order: [['id', 'DESC']] // Ordena pelo ID em ordem decrescente
             });
-    
+
             // Iterar sobre cada venda para buscar as formas de pagamento e valores pagos
             const vendasDetalhadas = [];
             for (let venda of vendas) {
                 // Busca as formas de pagamento relacionadas à venda
                 const formasPagamento = await Pagamentos.consultaPagamentoPorVenda(venda.id);
-    
+
                 // Adiciona o desconto como um objeto dentro de formasPagamento
                 const formasPagamentoComDesconto = [
                     ...formasPagamento.map(fp => ({
@@ -128,7 +140,7 @@ class VendasService {
                         }
                         : null // Ignora se não houver desconto
                 ].filter(Boolean); // Remove valores nulos do array
-    
+
                 // Estrutura a venda detalhada
                 vendasDetalhadas.push({
                     id: venda.id,
@@ -141,10 +153,10 @@ class VendasService {
                     formasPagamento: formasPagamentoComDesconto // Formas de pagamento da venda
                 });
             }
-    
+
             // Busca os lançamentos
             const lancamentos = await Lancamentos.consultaLancamentos();
-    
+
             // Processa os lançamentos ajustando valores para crédito/débito
             const lancamentosProcessados = lancamentos.map(lancamento => ({
                 id: lancamento.id,
@@ -154,16 +166,16 @@ class VendasService {
                 desconto: 0, // Não se aplica a lançamentos
                 data: lancamento.dataLancamento
             }));
-    
+
             // Unifica as vendas detalhadas e os lançamentos em uma única lista
             const transacoesUnificadas = [
                 ...vendasDetalhadas,
                 ...lancamentosProcessados
             ];
-    
+
             // Ordena as transações pela data de forma decrescente
             transacoesUnificadas.sort((a, b) => new Date(b.data) - new Date(a.data));
-    
+
             // Retorna as transações unificadas
             return {
                 transacoes: transacoesUnificadas
@@ -172,7 +184,7 @@ class VendasService {
             throw new Error('Erro ao buscar todas as vendas detalhadas');
         }
     }
-    
+
 
 
 
@@ -212,8 +224,8 @@ class VendasService {
             throw new Error('Erro ao consultar venda: ' + error.message);
         }
     }
-    
-    static async cancelaVenda(id,dadosCancelamento) {
+
+    static async cancelaVenda(id, dadosCancelamento) {
         try {
             const venda = await Vendas.findByPk(id);
             if (!venda) {

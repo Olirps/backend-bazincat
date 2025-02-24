@@ -1,5 +1,6 @@
 // src/controllers/ProdutosController.js
 const ProdutosService = require('../services/ProdutosService');
+const ProdutoGestaoService = require('../services/ProdutoGestaoService');
 const { Op } = require('sequelize');
 
 class ProdutosController {
@@ -85,6 +86,16 @@ class ProdutosController {
             //res.status(200).json(produtos);
         } catch (err) {
             res.status(400).json({ error: err.message });
+        }
+    }
+
+    // Consulta de produtos vendidos
+    static async consultaProdutosVendidos(req, res) {
+        try {
+            const produtosVendidos = await ProdutoGestaoService.consultaProdutosVendidos();
+            res.status(200).json(produtosVendidos);
+        } catch (error) {
+            res.status(400).json({ erro: error.message });
         }
     }
 }

@@ -24,9 +24,19 @@ const MovimentacoesEstoque = sequelize.define('MovimentacoesEstoque', {
     },
     nota_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'nota_fiscal', // Nome da tabela associada
+            key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
+    },
+    venda_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'vendas', // Nome da tabela associada
             key: 'id'
         },
         onUpdate: 'CASCADE',

@@ -1,6 +1,7 @@
 // src/routers.js
 const express = require('express');
 const router = express.Router();
+const EmpresaController = require('./controllers/EmpresaController');
 const VeiculosController = require('./controllers/VeiculosController');
 const BancoController = require('./controllers/BancoController');
 const ContasBancariasController = require('./controllers/ContasBancariasController');
@@ -39,6 +40,12 @@ router.post('/auth/login', LoginController.login); // Exclui as rotas de autenti
 
 // Aplica o middleware de autenticação para proteger todas as rotas abaixo
 router.use(authenticateToken);
+
+// Rotas para gerenciar empresa
+router.get('/empresa', EmpresaController.getAllEmpresas);
+router.get('/empresa/:id', EmpresaController.getEmpresaById);
+router.post('/empresa/', EmpresaController.createEmpresa);
+router.put('/empresa/:id', EmpresaController.updateEmpresa);
 
 // Rotas para gerenciar Permissões de acesso
 router.get('/grupoacesso', GrupoAcessoController.getAllGrupoAcesso);
@@ -124,6 +131,7 @@ router.delete('/subgrupoprodutos/:id', SubgrupoprodutoController.excluirSubgrupo
 // Rotas para produtos
 router.post('/produtos', ProdutosController.criarProduto);
 router.get('/produtos', ProdutosController.listarProdutos);
+router.get('/produtos/vendidos', ProdutosController.consultaProdutosVendidos);
 router.get('/export/produtos', ProdutosController.exportProdutos);
 router.get('/produtos/:id', ProdutosController.obterProdutoPorId);
 router.put('/produtos/:id', ProdutosController.atualizarProduto);
