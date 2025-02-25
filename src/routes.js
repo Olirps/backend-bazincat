@@ -135,7 +135,7 @@ router.get('/produtos/vendidos', ProdutosController.consultaProdutosVendidos);
 router.get('/export/produtos', ProdutosController.exportProdutos);
 router.get('/produtos/:id', ProdutosController.obterProdutoPorId);
 router.put('/produtos/:id', ProdutosController.atualizarProduto);
-router.delete('/produtos/:id', ProdutosController.excluirProduto);
+router.put('/produtos-inativar/:id', ProdutosController.excluirProduto);
 
 //Rotas para Lancamentos
 router.post('/movimentacaofinanceiradespesa', FinanceiroController.createLancamentos);

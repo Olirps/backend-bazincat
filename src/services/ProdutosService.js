@@ -106,7 +106,12 @@ class ProdutosService {
     // Obtém todos os produtos
     static async listarProdutos(filtro) {
         try {
-            return await Produtos.findAll({ where: filtro });
+            return await Produtos.findAll({
+                where: {
+                    ...filtro,
+                    status: 1
+                }
+            });
         } catch (error) {
             throw new Error('Erro ao listar os produtos: ' + error.message);
         }
@@ -171,7 +176,23 @@ class ProdutosService {
             if (!produto) {
                 throw new Error('Produto não encontrado');
             }
-            await produto.destroy();
+            const movimentacao = await MovimentacoesEstoque.findAll(
+                {
+                    where:
+                    {
+                        id: id,
+                        tipo_movimentacao: 'saida'
+                    }
+
+                }
+            );
+            if (movimentacao.length > 0) {
+                throw new Error('Produto com movimentação não pode ser inativado');
+            }
+
+            const inativar = { status: 0 };
+
+            await produto.update(inativar);
             return { mensagem: 'Produto excluído com sucesso' };
         } catch (error) {
             throw new Error('Erro ao excluir o produto: ' + error.message);

@@ -144,6 +144,10 @@ const Produtos = sequelize.define('Produtos', {
     margemSobreVlrCustoAtacado: {
         type: DataTypes.DECIMAL(15,4),
         allowNull: true,
+    },
+    status: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
     }
 }, {
     sequelize,
