@@ -7,6 +7,7 @@ const Lancamentos = require('../services/LancamentosService');
 
 class VendasService {
     static async registraVenda(data) {
+        console.log('Venda: '+JSON.stringify(data));
         const itensVenda = data.products;
         let pagamentos = data.pagamentos;
 
@@ -30,6 +31,8 @@ class VendasService {
             vlrVenda: item.total            // Preço do produto
         }));
 
+        const itensVendidos = await VendasItens.bulkCreate(itensVendaRegistrada);
+
         // Registra a movimentação de estoque para cada produto vendido
         for (const produto of itensVendaRegistrada) {
 
@@ -40,10 +43,9 @@ class VendasService {
                 venda_id: vendaRegistrada.id,    // ID da venda associada
                 valor_unit: produto.vlrVenda,    // ID da venda associada
                 data_movimentacao: new Date(),    // Data e hora atual
-                status :0
+                status: 0
             });
         }
-        const itensVendidos = await VendasItens.bulkCreate(itensVendaRegistrada);
         return vendaRegistrada;
     }
 

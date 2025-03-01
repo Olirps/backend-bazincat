@@ -83,6 +83,7 @@ class ProdutosService {
                 let vUnCom = Number(dadosProduto.vUnCom);
                 dadosProduto.margemSobreVlrCusto = ((vlrVenda / vUnCom) * 100) / 2;
                 dadosProduto.margemSobreVlrCustoAtacado = ((dadosProduto.vlrVendaAtacado / vUnCom) * 100) / 2;
+                dadosProduto.status = 1;
 
                 produto = await Produtos.create(dadosProduto);
 
@@ -141,7 +142,12 @@ class ProdutosService {
             }
 
             if (dadosAtualizados.cod_interno) {
-                const produtoExistente = await Produtos.findOne({ where: { cod_interno: dadosAtualizados.cod_interno } });
+                const produtoExistente = await Produtos.findOne({
+                    where: {
+                        cod_interno: dadosAtualizados.cod_interno,
+                        status:1
+                    }
+                });
                 if (produtoExistente) {
                     if (Number(produtoExistente.id) !== Number(id)) {
                         throw new Error(`Produto com código interno: ${dadosAtualizados.cod_interno} já cadastrado`);
