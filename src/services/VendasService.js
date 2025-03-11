@@ -4,16 +4,23 @@ const VendasItens = require('../models/VendasItens');
 const MovimentacoesEstoque = require('../models/MovimentacoesEstoque');
 const Pagamentos = require('../services/PagamentosService');
 const Lancamentos = require('../services/LancamentosService');
+const { generateNFCeXML } = require('../util/geraXML');
+const NFCeXml = require('../models/NFCeXml');  // Importa o modelo da tabela NFCeXml
+const xml2js = require('xml2js');
+
+
+
 
 class VendasService {
     static async registraVenda(data) {
-        console.log('Venda: '+JSON.stringify(data));
+        console.log('Venda: ' + JSON.stringify(data));
         const itensVenda = data.products;
         let pagamentos = data.pagamentos;
 
         if (data.cliente_id === '') {
             data.cliente_id = 176;
         }
+
         const vendaRegistrada = await Vendas.create(data);
 
         pagamentos = pagamentos.map(pagamento => ({
@@ -35,7 +42,6 @@ class VendasService {
 
         // Registra a movimentação de estoque para cada produto vendido
         for (const produto of itensVendaRegistrada) {
-
             await MovimentacoesEstoque.create({
                 produto_id: produto.produto_id,
                 quantidade: produto.quantity, // Quantidade negativa para indicar saída
@@ -46,7 +52,70 @@ class VendasService {
                 status: 0
             });
         }
-        return vendaRegistrada;
+
+        // Gera o XML da NFC-e
+        const xml = await generateNFCeXML(data);
+
+        // Converte o XML para JSON
+        const parser = new xml2js.Parser();
+        const jsonResult = await parser.parseStringPromise(xml);
+
+        // Acessa o nível nfeProc.protNFe.infProt.chNFe
+        const nNF = jsonResult.nfeProc.NFe[0].infNFe[0].ide[0].nNF[0];
+        const cNF = jsonResult.nfeProc.NFe[0].infNFe[0].ide[0].cNF[0];
+        const chaveAcesso = jsonResult.nfeProc.protNFe[0].infProt[0].chNFe[0];
+
+        console.log('Chave de Acesso: ' + chaveAcesso);
+
+        // Salva o XML na tabela NFCeXml
+        //const chaveAcesso = extractChaveAcessoFromXML(xml);  // Você pode criar uma função para extrair a chave de acesso do XML
+
+        await NFCeXml.create({
+            chaveAcesso: chaveAcesso,  // Chave de acesso da NFC-e
+            nNF: nNF,                // Número da NFC-e
+            cNF: cNF,                // Código numérico da NFC-e
+            venda_id: vendaRegistrada.id, // ID da venda associada
+            xml: xml,                  // XML gerado
+            status: 'ANDAMENTO',      // Status inicial (se necessário)
+        });
+
+        // Retorna o XML gerado para o frontend
+        return {
+            venda: vendaRegistrada,
+            xml
+        };
+    }
+
+    static async addXMLAssinado(id, xmlAssinado) {
+
+        try {
+            const xmlString = JSON.stringify(xmlAssinado);
+            const xmlClean = xmlString.replace(/\n|\t/g, '');
+
+            const nfcexml = await NFCeXml.findOne({
+                where: {
+                    venda_id: id
+                }
+            });
+            if (!nfcexml) {
+                throw new Error('NFCeXml não encontrada');
+            }
+
+            const nfcexmlAtualizada = await NFCeXml.update(
+                {
+                    xml: xmlClean,
+                    status: 'ASSINADA'
+                },
+                {
+                    where: {
+                        venda_id: id // Filtra pelo venda_id
+                    }
+                }
+            );
+            return nfcexmlAtualizada;
+        } catch (error) {
+            throw new Error('Error ao adicionar XML assinado: ' + error.message);
+        }
     }
 
     static async consultaVendas() {

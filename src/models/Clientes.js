@@ -25,6 +25,11 @@ const Clientes = sequelize.define('Clientes', {
         allowNull: false,
         unique: true,
     },
+    inscricao_estadual: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+        unique: true,
+    },
     fone: {
         type: DataTypes.STRING(11),
         allowNull: true

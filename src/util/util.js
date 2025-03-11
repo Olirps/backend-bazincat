@@ -129,9 +129,42 @@ function validarCnpj(cnpj) {
     return true;
 }
 
+function dataAtual() {
+    const agora = new Date();
+  
+    // Formata a data diretamente no fuso horário correto
+    const formatter = new Intl.DateTimeFormat("pt-BR", {
+      timeZone: "America/Cuiaba",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  
+    const [
+      { value: dia },
+      ,
+      { value: mes },
+      ,
+      { value: ano },
+      ,
+      { value: hora },
+      ,
+      { value: minuto },
+      ,
+      { value: segundo }
+    ] = formatter.formatToParts(agora);
+  
+    // Retorna a data formatada no padrão `YYYY-MM-DD HH:MM:SS`
+    return `${ano}-${mes}-${dia} ${hora}:${minuto}:${segundo}`;
+  }
+
 module.exports = {
     limpaCpf,
     limpaDocumento,
     validarCpf,
-    validarCnpj
+    validarCnpj,
+    dataAtual
 };

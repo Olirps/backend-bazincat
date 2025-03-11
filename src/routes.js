@@ -187,6 +187,7 @@ router.get('/vendasdetalhes/', VendasController.consultaVendasDetalhado);
 router.post('/pagamentos', PagamentosController.registraPagamento);
 router.get('/pagamentos', PagamentosController.consultaPagamentos);
 router.get('/pagamentos/:id', PagamentosController.consultaPagamentoPorVenda);
+router.put('/returnoxmlassinado/:id', VendasController.addXMLAssinado);
 
 //Rotas de Lancamentos
 router.get('/itensvendidos', RelatorioItensVendaController.getRelatorioItensVenda);

@@ -21,6 +21,18 @@ const Empresa = sequelize.define('Empresa', {
         type: DataTypes.STRING(28),
         allowNull: false,
     },
+    inscricao_estadual: {
+        type: DataTypes.STRING(20),
+        allowNull: false,
+    },
+    telefone: {
+        type: DataTypes.STRING(14),
+        allowNull: false,
+    },
+    celular: {
+        type: DataTypes.STRING(15),
+        allowNull: false,
+    },
     logradouro: {
         type: DataTypes.STRING(28),
         allowNull: true,
@@ -53,8 +65,33 @@ const Empresa = sequelize.define('Empresa', {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE'
     },
+    cep: {
+        type: DataTypes.STRING(10),
+        allowNull: false,
+    },
     status: {
         type: DataTypes.INTEGER,
+        allowNull: false,
+    },
+    regime_tributario: {
+        type: DataTypes.ENUM('1', '2', '3'),
+        allowNull: false,
+        comment: '1 - Simples Nacional  2 - Simples Nacional - Excesso de Sublimite  3 - Regime Normal (Lucro Presumido ou Real)'
+    },
+    cfop_padrao: {
+        type: DataTypes.STRING(4),
+        allowNull: false,
+    },
+    icms_aliquota: {
+        type: DataTypes.DECIMAL(5,2),
+        allowNull: false,
+    },
+    pis_aliquota: {
+        type: DataTypes.DECIMAL(5,2),
+        allowNull: false,
+    },
+    cofins_aliquota: {
+        type: DataTypes.DECIMAL(5,2),
         allowNull: false,
     },
 },
