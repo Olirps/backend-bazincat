@@ -28,7 +28,7 @@ const NFCeXml = sequelize.define("NFCeXml", {
     },
     cNF: {
         type: DataTypes.STRING(8),
-        allowNull: false
+        allowNull: true
     },
     xml: {
         type: DataTypes.BLOB, // Troque para BLOB se necessário
