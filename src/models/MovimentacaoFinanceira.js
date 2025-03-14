@@ -27,6 +27,10 @@ const MovimentacaoFinanceira = sequelize.define('MovimentacaoFinanceira', {
         type: DataTypes.DATE,
         allowNull: true,
     },
+    boleto: {
+        type: DataTypes.STRING(20),
+        allowNull: true,
+    },
     vencimento: {
         type: DataTypes.DATE,
         allowNull: false,
@@ -48,7 +52,7 @@ const MovimentacaoFinanceira = sequelize.define('MovimentacaoFinanceira', {
         allowNull: true,
     },
     metodo_pagamento: {
-        type: DataTypes.ENUM('transferencia', 'boleto', 'credito', 'debito','cheque', 'dinheiro', 'PIX'),
+        type: DataTypes.ENUM('transferencia', 'boleto', 'credito', 'debito','cheque', 'dinheiro', 'PIX', 'DA', 'TRFCC', 'TED'),
         allowNull: true,
     },
     status: {
@@ -56,10 +60,19 @@ const MovimentacaoFinanceira = sequelize.define('MovimentacaoFinanceira', {
         defaultValue: 'pendente',
         allowNull: false,
     },
+    motivo_cancelamento: {
+        type: DataTypes.STRING(155),
+        allowNull: true,
+    },
+    data_cancelamento: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
     data_efetiva_pg: {
         type: DataTypes.DATE,
         allowNull: true,
-    }
+    },
+    
 }, {
     sequelize,
     modelName: 'MovimentacaoFinanceira',

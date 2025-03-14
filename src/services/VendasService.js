@@ -87,7 +87,6 @@ class VendasService {
     }
 
     static async addXMLAssinado(id, xmlAssinado) {
-
         try {
             const xmlString = JSON.stringify(xmlAssinado);
             const xmlClean = xmlString.replace(/\n|\t/g, '');

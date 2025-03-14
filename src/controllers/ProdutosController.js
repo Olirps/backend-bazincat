@@ -98,6 +98,16 @@ class ProdutosController {
             res.status(400).json({ erro: error.message });
         }
     }
+    
+    static async produtosMaisVendidosSemana(req, res) {
+        try {
+            const contas = await ProdutoGestaoService.produtosMaisVendidosSemana();
+            return res.status(200).json(contas);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
 }
 
 module.exports = ProdutosController;

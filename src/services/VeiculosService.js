@@ -10,6 +10,7 @@ class VeiculosService {
     }
     
     try {
+      console.log('Dados Veículo> '+ JSON.stringify(dados));
       return await Veiculos.create(dados);
     } catch (err) {
       throw new Error(err.message);

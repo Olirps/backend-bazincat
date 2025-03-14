@@ -125,6 +125,10 @@ class ClientesService {
         return await Clientes.findByPk(id);
       }
 
+      if(updated == 0 && clientesExistente.id == id){
+        return 'Nenhum dado foi alterado';
+      }
+
       // Se não foi atualizado, retornar null
       return null;
     } catch (err) {

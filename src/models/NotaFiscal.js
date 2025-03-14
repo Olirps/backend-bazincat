@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 const Fornecedores = require('../models/Fornecedores');
+const Financeiro = require('../models/Financeiro');
 
 
 const NotaFiscal = sequelize.define('NotaFiscal', {
@@ -12,7 +13,7 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
     },
     cUF: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: true
     },
     codFornecedor: {
         type: DataTypes.INTEGER,
@@ -22,12 +23,20 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         },
         allowNull: false,
     },
+    financeiro_id: {
+        type: DataTypes.INTEGER,
+        references: {
+            model: Financeiro,
+            key: 'id',
+        },
+        allowNull: false,
+    },
     cNF: {
         type: DataTypes.STRING(15),
         allowNull: true
     },
     natOp: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: true
     },
     mod: {
@@ -39,7 +48,7 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         allowNull: true
     },
     nNF: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: true
     },
     dhEmi: {
@@ -99,7 +108,7 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         allowNull: true
     },
     verProc: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: true
     },
     dhCont: {
@@ -107,12 +116,16 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         allowNull: true
     },
     NFref: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: true // Assuming NFref is optional
     },
     vNF: {
         type: DataTypes.DECIMAL(10,2),
         allowNull: false // Assuming NFref is optional
+    },
+    apTribu: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
     },
     vProd: {
         type: DataTypes.DECIMAL(10,2),
@@ -122,7 +135,19 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         type: DataTypes.DECIMAL(10,2),
         allowNull: true // Assuming NFref is optional
     },
+    vOutro: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
     vFrete: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
+    vSeguro: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
+    vIPI: {
         type: DataTypes.DECIMAL(10,2),
         allowNull: true // Assuming NFref is optional
     },
@@ -130,12 +155,28 @@ const NotaFiscal = sequelize.define('NotaFiscal', {
         type: DataTypes.DECIMAL(10,2),
         allowNull: true // Assuming NFref is optional
     },
+    bICMS: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
     vICMS: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
+    bICMSSub: {
+        type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
+    vICMSSub: {
         type: DataTypes.DECIMAL(10,2),
         allowNull: true // Assuming NFref is optional
     },
     vTotTrib: {
         type: DataTypes.DECIMAL(10,2),
+        allowNull: true // Assuming NFref is optional
+    },
+    chave: {
+        type: DataTypes.STRING(50),
         allowNull: true // Assuming NFref is optional
     },
     xJust: {

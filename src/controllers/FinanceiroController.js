@@ -15,7 +15,18 @@ class FinanceiroController {
 
     static async getAllLancamentosFinanceiroDespesa(req, res) {
         try {
-            const lancamentos = await FinanceiroService.getAllLancamentosFinanceiroDespesa();
+            const lancamentos = await FinanceiroService.getAllLancamentosFinanceiroDespesa(req.query);
+            return res.status(200).json(lancamentos);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async getLancamentosParaUnificar(req, res) {
+        try {
+            const filters = req.query; // Filtros passados na query string
+
+            const lancamentos = await FinanceiroService.getLancamentosParaUnificar(filters);
             return res.status(200).json(lancamentos);
         } catch (error) {
             return res.status(400).json({ error: error.message });
@@ -49,8 +60,8 @@ class FinanceiroController {
 
     static async getMovimentacaoFinanceiraByFinanceiroID(req, res) {
         try {
-            const { financeiroId } = req.params.id;
-            const movimentacao = await FinanceiroService.getMovimentacaoFinanceiraByFinanceiroID(req.params.id);
+
+            const movimentacao = await FinanceiroService.getMovimentacaoFinanceiraByFinanceiroID(req.params.id, req.query);
 
             if (!movimentacao) {
                 return res.status(404).json({ message: 'Movimentação não encontrada' });

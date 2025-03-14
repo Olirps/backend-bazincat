@@ -14,6 +14,24 @@ class PermissionsService {
             throw new Error('Grupo de acesso não encontrado.');
         }
 
+        // Verifica se o grupo de acesso já possui permissões
+        const qtd = permissoes.length;
+
+        if (qtd > 0) {
+
+            for (const perm of permissoes) {
+                const permissao = await Permissoes.findOne({
+                    where: {
+                        grupoAcessoId,
+                        pagename: perm.pagename
+                    }
+                });
+                if (permissao) {
+                    throw new Error('Permissão já existe.');
+                }
+            }
+        }
+
         // Cria todas as permissões enviadas no array
         const newPermissions = await Promise.all(
             permissoes.map(async (perm) => {

@@ -7,8 +7,12 @@ const Financeiro = sequelize.define('Financeiro', {
         autoIncrement: true,
         primaryKey: true,
     },
+    credor_nome: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+    },
     descricao: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false,
     },
     valor: {
@@ -36,16 +40,8 @@ const Financeiro = sequelize.define('Financeiro', {
             key: 'id',
         },
     },
-    nota_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: 'nota_fiscal',
-            key: 'id',
-        },
-    },
     data_vencimento: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
         allowNull: true
     },
     data_lancamento: {
@@ -55,6 +51,10 @@ const Financeiro = sequelize.define('Financeiro', {
     tipo_lancamento: {
         type: DataTypes.ENUM('automatico', 'manual'),
         allowNull: false,
+    },
+    tipo_parcelamento: {
+        type: DataTypes.ENUM('mensal', 'anual'),
+        allowNull: true,
     },
     pagamento: {
         type: DataTypes.ENUM('cotaunica', 'recorrente', 'parcelada'),
@@ -70,7 +70,10 @@ const Financeiro = sequelize.define('Financeiro', {
     },
     data_cancelamento: {
         type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
+    },
+    motivo_cancelamento: {
+        type: DataTypes.STRING(255),
+        allowNull: true
     }
 }, {
     sequelize,

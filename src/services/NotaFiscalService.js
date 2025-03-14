@@ -66,26 +66,40 @@ class NotaFiscalService {
         throw new Error('Nota Fiscal Já Cadastrada.');
       }
 
+      const dadosXMLAntes = dadosXml;
+      console.log('Dados XML: ' + JSON.stringify(dadosXml));
+      // Cria contas a pagar
+      const contasPagarData = {
+        descricao: `Nota Fiscal ${dadosXml.informacoesIde.nNF} - ${dadosXml.fornecedor.xFant}`,
+        tipo: 'débito',
+        tipo_lancamento: 'automatico',
+        fornecedor_id: dadosXml.codFornecedor,
+        valor: dadosXml.informacoesIde.vNF,
+        data_lancamento: new Date(new Date().setHours(new Date().getHours() - 4)).toISOString().slice(0, 19).replace('T', ' '),
+        status: 'aberta'
+      };
+
+      const financeiro = await Financeiro.create(contasPagarData);
+
       // Cria a nota fiscal
       let jsonCreateNF = dadosXml.informacoesIde;
       jsonCreateNF.codFornecedor = dadosXml.codFornecedor;
       jsonCreateNF.lancto = 'automatico';
       jsonCreateNF.status = 'fechada';
+      jsonCreateNF.financeiro_id = financeiro.id;
+
       const nfCreated = await NotaFiscal.create(jsonCreateNF);
       // Processa produtos associados
 
       const pagamentosnf = { nota_id: nfCreated.id, ...dadosXml.pagamento }
 
-      if(pagamentosnf){
-        
-      }
       // Transformando para um objeto único
       const transformedData = {
         nota_id: nfCreated.id,
         ...pagamentosnf.detPag,
-        ...pagamentosnf.detPag?.card,
-        ...pagamentosnf?.vTroco,
-        ...pagamentosnf?.tPag
+        ...pagamentosnf.detPag.card,
+        ...pagamentosnf.vTroco,
+        ...pagamentosnf.tPag
       };
 
       const pagamentos = Object.keys(pagamentosnf.detPag)
@@ -118,20 +132,6 @@ class NotaFiscalService {
 
       await verificarProdutos(produtoInfo);
 
-      // Cria contas a pagar
-      const contasPagarData = {
-        nota_id: nfCreated.id,
-        descricao: `Nota Fiscal ${nfCreated.nNF} - ${dadosXml.fornecedor.xFant}`,
-        tipo: 'débito',
-        tipo_lancamento: 'automatico',
-        fornecedor_id: nfCreated.codFornecedor,
-        valor: nfCreated.vNF,
-        data_lancamento: new Date(new Date().setHours(new Date().getHours() - 4)).toISOString().slice(0, 19).replace('T', ' '),
-        status: 'aberta'
-      };
-
-      const movimentacao_financeira = await Financeiro.create(contasPagarData);
-
       return nfCreated;
     } catch (err) {
       throw new Error(err.message);
@@ -144,27 +144,32 @@ class NotaFiscalService {
       if (notaFiscalExistente) {
         throw new Error('Nota Fiscal Já Cadastrada.');
       }
-      dados.lancto = 'manual';
-      dados.status = 'aberta';
-      dados.dhEmi = dados.dataEmissao;
-      dados.dhSaiEnt = dados.dataSaida;
-      const nfCreated = await NotaFiscal.create(dados);
 
-      const fornecedor = await Fornecedores.findOne({ where: { id: nfCreated.codFornecedor } });
+      const fornecedor = await Fornecedores.findOne({ where: { id: dados.codFornecedor } });
 
       // Cria contas a pagar
       const contasPagarData = {
-        nota_id: nfCreated.id,
-        descricao: `Nota Fiscal ${nfCreated.nNF} - ${fornecedor.nomeFantasia}`,
+        descricao: `Nota Fiscal ${dados.nNF} - ${fornecedor.nomeFantasia}`,
         tipo: 'débito',
         tipo_lancamento: 'automatico',
-        fornecedor_id: nfCreated.codFornecedor,
-        valor: nfCreated.vNF,
+        fornecedor_id: dados.codFornecedor,
+        valor: dados.vNF,
         data_lancamento: new Date(new Date().setHours(new Date().getHours() - 4)).toISOString().slice(0, 19).replace('T', ' '),
         status: 'aberta'
       };
 
-      const movimentacao_financeira = await Financeiro.create(contasPagarData);
+      const financeiro = await Financeiro.create(contasPagarData);
+
+      dados.lancto = 'manual';
+      dados.status = 'aberta';
+      dados.dhEmi = dados.dataEmissao;
+      dados.dhSaiEnt = dados.dataSaida;
+      dados.financeiro_id = financeiro.id;
+
+
+      const nfCreated = await NotaFiscal.create(dados);
+
+
 
       //await transaction.commit();
       return nfCreated;

@@ -14,10 +14,6 @@ const Veiculos = sequelize.define('Veiculos', {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
-  tipo: {
-    type: DataTypes.STRING(100),
-    allowNull: false,
-  },
   placa: {
     type: DataTypes.STRING(10),
     allowNull: false,
