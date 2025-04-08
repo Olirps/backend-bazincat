@@ -9,6 +9,10 @@ const Produtos = sequelize.define('Produtos', {
         primaryKey: true,
         autoIncrement: true,
     },
+    tipo: {
+        type: DataTypes.ENUM('produto', 'servico'),
+        allowNull: true,
+    },
     cProd: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -143,6 +147,10 @@ const Produtos = sequelize.define('Produtos', {
     },
     margemSobreVlrCustoAtacado: {
         type: DataTypes.DECIMAL(15,4),
+        allowNull: true,
+    },
+    pct_servico: {
+        type: DataTypes.DECIMAL(10,4),
         allowNull: true,
     },
     status: {

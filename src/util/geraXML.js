@@ -2,6 +2,7 @@ const { dataAtual } = require("../util/util.js");
 const NFCeXml = require('../models/NFCeXml.js');
 const UF = require('../models/Uf');
 const Municipio = require('../models/Municipio.js');
+const Empresa = require('../models/Empresa.js');
 const Clientes = require('../models/Clientes.js');
 
 // Função para obter o último número da nota fiscal registrado
@@ -63,16 +64,26 @@ function calcularDV(chave43Digitos) {
 }
 
 const generateChaveAcesso = async (data) => {
+
+  let empresa = data.empresa;
+
+  if (!empresa) {
+    empresa = await Empresa.findOne({
+      where: {
+        status: 1
+      }
+    })
+  }
   // Obter o último número da nota fiscal e somar 1
   const numeroNota = (await getUltimoNumeroNota()) + 1;
 
   // Ajustando para garantir que o número da nota tenha 9 dígitos
   const numeroNotaStr = numeroNota.toString().padStart(9, '0');
 
-  const codigoUF = data.empresa.uf_id;  // Código da UF (2 dígitos)
+  const codigoUF = empresa.uf_id;  // Código da UF (2 dígitos)
   const ano = data.dataVenda.substring(2, 4);  // '25'
   const mes = data.dataVenda.substring(5, 7);  // '03'
-  const cnpj = data.empresa.cnpj.replace(/[^\d]/g, '').padStart(14, '0');  // CNPJ do emitente (14 dígitos)
+  const cnpj = empresa.cnpj.replace(/[^\d]/g, '').padStart(14, '0');  // CNPJ do emitente (14 dígitos)
   const modelo = 65; //Modelo NFC-e Sempre será 65
   const serie = '001';  // Serie definido pela empresa
   const tpEmis = 1;  // Serie definido pela empresa
@@ -97,9 +108,22 @@ const generateChaveAcesso = async (data) => {
 
 
 const generateNFCeXML = async (data) => {
-  const empresa = data.empresa;
+  let empresa = data.empresa;
   const cliente = data.cliente;
-  const produtos = data.products;
+  if (!empresa) {
+    empresa = await Empresa.findOne({
+      where: {
+        status: 1
+      }
+    })
+  }
+  let produtos = []
+  if (data.produtosServicos && Array.isArray(data.produtosServicos) && data.produtosServicos.length > 0) {
+    produtos = data.produtosServicos;
+  } else {
+    produtos = data.products;
+  }
+
   const pagamentos = data.pagamentos;
   const totalQuantity = data.totalQuantity;
   const totalPrice = data.totalPrice;
@@ -108,11 +132,11 @@ const generateNFCeXML = async (data) => {
   const cNF = await gerarCNFUnico();
   data.cNF = cNF;
 
-  const municipio = await Municipio.findByPk(data.empresa.municipio_id);
+  const municipio = await Municipio.findByPk(empresa.municipio_id);
   const uf = await UF.findOne(
     {
       where: {
-        codIBGE: data.empresa.uf_id
+        codIBGE: empresa.uf_id
       }
     }
   );
@@ -132,7 +156,7 @@ const generateNFCeXML = async (data) => {
   // Cabeçalho da NFC-e (ide)
   const ide = `  
       <ide>
-        <cUF>${data.empresa.uf_id}</cUF> 
+        <cUF>${empresa.uf_id}</cUF> 
         <cNF>${cNF}</cNF>
         <natOp>VENDA DE MERCADORIA CONFORME CFOP</natOp>
         <mod>65</mod> 
@@ -381,7 +405,7 @@ const generateNFCeXML = async (data) => {
         </infProt>
       </protNFe>
     `;
-    
+
   // Finalização do XML
   const xml = `  
       <nfeProc xmlns="http://www.portalfiscal.inf.br/nfe" versao="4.00">

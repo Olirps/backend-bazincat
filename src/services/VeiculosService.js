@@ -3,14 +3,15 @@ const Veiculos = require('../models/Veiculos');
 
 class VeiculosService {
   static async criarVeiculos(dados) {
-    // Verificar se a placa já existe
-    const VeiculosExistente = await Veiculos.findOne({ where: { placa: dados.placa } });
-    if (VeiculosExistente) {
-      throw new Error('Já existe um Veiculo com esta placa.');
+    if (dados.placa) {
+      // Verificar se a placa já existe
+      const VeiculosExistente = await Veiculos.findOne({ where: { placa: dados.placa } });
+      if (VeiculosExistente) {
+        throw new Error('Já existe um Veiculo com esta placa.');
+      }
     }
-    
+
     try {
-      console.log('Dados Veículo> '+ JSON.stringify(dados));
       return await Veiculos.create(dados);
     } catch (err) {
       throw new Error(err.message);
@@ -19,7 +20,7 @@ class VeiculosService {
 
   static async obterTodosVeiculos(filtro) {
     try {
-      return await Veiculos.findAll({ where : filtro });
+      return await Veiculos.findAll({ where: filtro });
     } catch (err) {
       throw new Error(err.message);
     }

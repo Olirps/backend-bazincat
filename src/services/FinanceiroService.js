@@ -207,10 +207,12 @@ class FinanceiroService {
 
   static async getAllLancamentosFinanceiroDespesa(filtros) {
     try {
+      const {tipo} = filtros
+
       const whereCondition = {
-        tipo: 'debito',
+        tipo: tipo,
         status: {
-          [Op.notIn]: ['cancelada', 'liquidado']
+          [Op.notIn]: ['cancelada', 'liquidado','pago','estornado']
         }
       };
 

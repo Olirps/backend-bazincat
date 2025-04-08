@@ -22,6 +22,16 @@ const sequelize = require('../db');
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true,
     },
+    formapgto_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'formas-pagamento', // Nome da tabela associada
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
+    },
     formaPagamento: {
         type: DataTypes.ENUM('dinheiro', 'pix', 'cartaoDebito', 'cartaoCredito', 'pedido'),
         allowNull: true,

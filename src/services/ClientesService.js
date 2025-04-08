@@ -23,13 +23,16 @@ class ClientesService {
       }
     } else {
       cpfCnpjLimpo = (dados.cpfCnpj ?? dados.CNPJ)?.replace(/\D/g, ''); // Remove caracteres não numéricos
+      if (cpfCnpjLimpo !== "") {
+        if (!validarCnpj(cpfCnpjLimpo)) {
+          throw new Error(`CNPJ: ${(dados.cpfCnpj ?? dados.CNPJ)} é inválido`);
+        }
 
-      if (!validarCnpj(cpfCnpjLimpo)) {
-        throw new Error(`CNPJ: ${(dados.cpfCnpj ?? dados.CNPJ)} é inválido`);
-      }
-      const clientesExistente = await Clientes.findOne({ where: { cpfCnpj: cpfCnpjLimpo } });
-      if (clientesExistente) {
-        throw new Error(`CNPJ: ${(dados.cpfCnpj ?? dados.CNPJ)} já cadastrado`);
+        const clientesExistente = await Clientes.findOne({ where: { cpfCnpj: cpfCnpjLimpo } });
+
+        if (clientesExistente) {
+          throw new Error(`CNPJ: ${(dados.cpfCnpj ?? dados.CNPJ)} já cadastrado`);
+        }
       }
     }
     try {
@@ -125,7 +128,7 @@ class ClientesService {
         return await Clientes.findByPk(id);
       }
 
-      if(updated == 0 && clientesExistente.id == id){
+      if (updated == 0 && clientesExistente.id == id) {
         return 'Nenhum dado foi alterado';
       }
 

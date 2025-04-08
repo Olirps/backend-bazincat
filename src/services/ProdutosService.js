@@ -19,6 +19,7 @@ class ProdutosService {
                 prodOri_nf = itensNaoIdentificados.nota_id;
                 qCom = itensNaoIdentificados.qCom;
                 produto = await Produtos.create({
+                    tipo: 'produto',
                     cProd: itensNaoIdentificados.cProd,
                     cEAN: itensNaoIdentificados.cEAN,
                     xProd: itensNaoIdentificados.xProd,
@@ -67,11 +68,11 @@ class ProdutosService {
             } else {
                 if (dadosProduto.cod_interno) {
                     const produtoExistente = await Produtos.findOne({ where: { cod_interno: dadosProduto.cod_interno } });
-                    if (produtoExistente && produtoExistente.id !== id) {
+                    if (produtoExistente) {
                         throw new Error(`Produto com código interno: ${dadosProduto.cod_interno} já cadastrado`);
                     }
                 }
-                if (dadosProduto.cEAN !== 'SEM GTIN' && dadosProduto.cEAN !== "") {
+                if (dadosProduto.cEAN !== 'SEM GTIN' && dadosProduto.cEAN !== "" && dadosProduto.cEAN !== undefined) {
                     const produtoExistente = await Produtos.findOne({ where: { cEAN: dadosProduto.cEAN } });
                     if (produtoExistente) {
                         if (id != produtoExistente.id) {
@@ -79,26 +80,38 @@ class ProdutosService {
                         }
                     }
                 }
-                let vlrVenda = Number(dadosProduto.vlrVenda);
-                let vUnCom = Number(dadosProduto.vUnCom);
-                dadosProduto.margemSobreVlrCusto = ((vlrVenda - vUnCom) / vUnCom) * 100;
-                dadosProduto.margemSobreVlrCustoAtacado = ((dadosProduto.vlrVendaAtacado - vUnCom) / vUnCom) * 100;
-                dadosProduto.status = 1;
+                if (dadosProduto.tipo === 'produto') {
 
-                produto = await Produtos.create(dadosProduto);
+                    let vlrVenda = Number(dadosProduto.vlrVenda);
+                    let vUnCom = Number(dadosProduto.vUnCom);
+                    dadosProduto.margemSobreVlrCusto = ((vlrVenda - vUnCom) / vUnCom) * 100;
+                    dadosProduto.margemSobreVlrCustoAtacado = ((dadosProduto.vlrVendaAtacado - vUnCom) / vUnCom) * 100;
+                    dadosProduto.status = 1;
 
-                if (dadosProduto.nota_id) {
-                    dadosProduto.produto_id = produto.id;
-                    dadosProduto.tipo_movimentacao = 'entrada'
-                    dadosProduto.quantidade = dadosProduto.qCom
-                    dadosProduto.status = 0
-                    dadosProduto.valor_unit = dadosProduto.vUnCom// dadosProduto.valor_unit ajustado ppara importacao de nf 24/09/2024
+                    produto = await Produtos.create(dadosProduto);
 
-                    const atualizaEstoque = await MovimentacoesEstoque.create(dadosProduto);
+                    if (dadosProduto.nota_id) {
+                        dadosProduto.produto_id = produto.id;
+                        dadosProduto.tipo_movimentacao = 'entrada'
+                        dadosProduto.quantidade = dadosProduto.qCom
+                        dadosProduto.status = 0
+                        dadosProduto.valor_unit = dadosProduto.vUnCom// dadosProduto.valor_unit ajustado ppara importacao de nf 24/09/2024
+
+                        const atualizaEstoque = await MovimentacoesEstoque.create(dadosProduto);
+                    }
+                    return produto;
+
+                } else {
+                    dadosProduto.status = 1;
+                    dadosProduto.qCom = 1;
+                    dadosProduto.qtdMinima = 1;
+                    produto = await Produtos.create(dadosProduto);
+
+                    return produto;
+
                 }
-            }
 
-            return produto;
+            }
         } catch (error) {
             throw new Error('Erro ao criar o produto: ' + error.message);
         }
@@ -145,7 +158,7 @@ class ProdutosService {
                 const produtoExistente = await Produtos.findOne({
                     where: {
                         cod_interno: dadosAtualizados.cod_interno,
-                        status:1
+                        status: 1
                     }
                 });
                 if (produtoExistente) {
@@ -166,7 +179,7 @@ class ProdutosService {
             let vlrVenda = Number(dadosAtualizados.vlrVenda);
             let vUnCom = Number(dadosAtualizados.vUnCom);
             dadosAtualizados.margemSobreVlrCusto = ((vlrVenda - vUnCom) / vUnCom) * 100;
-            dadosAtualizados.margemSobreVlrCustoAtacado = ((dadosAtualizados.vlrVendaAtacado - vUnCom) / vUnCom) * 100;            
+            dadosAtualizados.margemSobreVlrCustoAtacado = ((dadosAtualizados.vlrVendaAtacado - vUnCom) / vUnCom) * 100;
 
             await produto.update(dadosAtualizados);
             return produto;

@@ -16,13 +16,12 @@ const Veiculos = sequelize.define('Veiculos', {
   },
   placa: {
     type: DataTypes.STRING(10),
-    allowNull: false,
+    allowNull: true,
     unique: true,
   },
   quilometragem: {
     type: DataTypes.STRING(50),
-    allowNull: false,
-    unique: true,
+    allowNull: true,
   },
   marcaId: {
     type: DataTypes.INTEGER,

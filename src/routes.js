@@ -28,6 +28,10 @@ const PermissionsController = require('./controllers/PermissionsController');
 const PagamentosController = require('./controllers/PagamentosController'); // Ajuste o caminho conforme necessário
 const LancamentosController = require('./controllers/LancamentosController'); // Ajuste o caminho conforme necessário
 const RelatorioItensVendaController = require('./controllers/RelatorioItensVendaController'); // Ajuste o caminho conforme necessário
+const OSStatusController = require('./controllers/osStatusController');
+const OSServiceController = require('./controllers/osServiceController');
+
+const FormasPagamentoController = require('./controllers/formasPagamentoController');
 
 
 
@@ -183,6 +187,7 @@ router.get('/municipios/mun/:id', UFMunicipiosController.obterMunicipioPorId);
 router.post('/vendas', VendasController.registraVenda);
 router.get('/vendas', VendasController.consultaVendas);
 router.put('/cancelavenda/:id', VendasController.cancelaVenda);
+router.put('/atualizar-venda/:id', VendasController.cancelaVenda);
 router.get('/vendasid/:id', VendasController.consultaVendaPorId);
 router.get('/vendas/:id', VendasController.consultaItensPorVenda);
 router.get('/vendasdetalhes/', VendasController.consultaVendasDetalhado);
@@ -196,6 +201,33 @@ router.get('/itensvendidos', RelatorioItensVendaController.getRelatorioItensVend
 //Rotas de Lancamentos
 router.post('/lancamentos', LancamentosController.registraLancamento);
 router.get('/lancamentos', LancamentosController.consultaLancamentos);
+
+// Rota para Gerenciar os status de OS
+router.get('/osstatus', OSStatusController.getAllOSStatus);
+router.post('/osstatus', OSStatusController.createOSStatus);
+router.get('/osstatus/:id', OSStatusController.getOSStatusById);
+router.put('/osstatus/:id', OSStatusController.updateOSStatus);
+router.put('/osstatus/:id', OSStatusController.updateOSStatus);
+router.delete('/osstatus/:id', OSStatusController.deleteOSStatus);
+
+
+// Rota para Gerenciar todas as ordens de serviço
+router.get('/osservice', OSServiceController.getAllOSService);
+router.get('/osservice-workflow/:id', OSServiceController.obterHistorico);
+router.post('/osservice', OSServiceController.createOSService);
+router.get('/osservice/:id', OSServiceController.getOSServiceById);
+router.put('/osservice/:id', OSServiceController.updateOSService);
+router.put('/osservice-aprovar/:id', OSServiceController.aprovarOS);
+router.put('/osremove_item/:id', OSServiceController.removerProdutoOS);
+router.delete('/osservice/:id', OSServiceController.deleteOSService);
+
+
+// Rota para Gerenciar todas as formas de pagamento
+router.get('/formas-pagamento', FormasPagamentoController.listarTodas);
+router.get('/formas-pagamento/:id', FormasPagamentoController.buscarPorId);
+router.post('/formas-pagamento', FormasPagamentoController.criar);
+router.put('/formas-pagamento/:id', FormasPagamentoController.atualizar);
+router.delete('/formas-pagamento/:id', FormasPagamentoController.deletar);
 
 
 module.exports = router;

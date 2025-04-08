@@ -22,7 +22,7 @@ const Clientes = sequelize.define('Clientes', {
     },
     cpfCnpj: {
         type: DataTypes.STRING(18),
-        allowNull: false,
+        allowNull: true,
         unique: true,
     },
     inscricao_estadual: {
@@ -44,19 +44,19 @@ const Clientes = sequelize.define('Clientes', {
     },
     logradouro: {
         type: DataTypes.STRING(100),
-        allowNull: false
+        allowNull: true
     },
     numero: {
         type: DataTypes.STRING(8),
-        allowNull: false
+        allowNull: true
     },
     bairro: {
         type: DataTypes.STRING(100),
-        allowNull: false
+        allowNull: true
     },
     municipio_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: 'municipio', // Nome da tabela associada
             key: 'id'
@@ -66,11 +66,11 @@ const Clientes = sequelize.define('Clientes', {
     },
     uf_id: {
         type: DataTypes.STRING(2),
-        allowNull: false
+        allowNull: true
     },
     cep: {
         type: DataTypes.STRING(8),
-        allowNull: false
+        allowNull: true
     },
     observacoes: {
         type: DataTypes.STRING(255),

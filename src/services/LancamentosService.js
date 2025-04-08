@@ -1,5 +1,7 @@
 const Lancamentos = require('../models/Lancamentos');
 const Vendas = require('../models/Vendas');
+const { Op } = require('sequelize');
+
 
 class LancamentosService {
     /**
@@ -23,11 +25,16 @@ class LancamentosService {
      * Busca todos os lançamentos.
      * @returns {Promise<Array>} - Lista de lançamentos.
      */
-    static async consultaLancamentos() {
+    static async consultaLancamentos(filters = {}) {
+        let { dataInicio, dataFim } = filters;
+
         try {
             const lancamentos = await Lancamentos.findAll({
-                where : {
-                    status: 0 // Status igual a 0 (ativo)
+                where: {
+                    status: 0,// Status igual a 0 (ativo)
+                    dataLancamento: {
+                        [Op.between]: [dataInicio, dataFim] // Filtra por data
+                    }
                 },
                 order: [['id', 'DESC']], // Ordena pelo ID em ordem decrescente
             });
