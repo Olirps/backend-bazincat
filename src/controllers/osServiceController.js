@@ -80,7 +80,7 @@ class OSServiceController {
    
     static async removerProdutoOS(req, res) {
         try {
-            const produtoRemovido = await OSServiceService.removerProdutoOS(req.params.id);
+            const produtoRemovido = await OSServiceService.removerProdutoOS(req.params.id,req.body);
             if (!produtoRemovido) {
                 return res.status(404).json({ message: 'Remoção não realizada' });
             }

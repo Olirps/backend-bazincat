@@ -32,18 +32,25 @@ class PagamentosService {
         }
     }
 
-    static async consultaPagamentoPorVenda(id) {
+    static async consultaPagamentoPorVenda(id, tipoVenda) {
         try {
-            // Busca os pagamentos da venda
-            let pagamentoVenda = await Pagamentos.findAll({
-                where: {
-                    venda_id: id
-                },
+            const whereClause = {
+                venda_id: id
+            };
+
+            // Adiciona o filtro por tipoVenda apenas se não for null
+            if (tipoVenda !== null && tipoVenda !== undefined) {
+                whereClause.formapgto_id = tipoVenda;
+            }
+
+            const pagamentoVenda = await Pagamentos.findAll({
+                where: whereClause,
                 order: [['id', 'ASC']]
             });
+
             for (let i = 0; i < pagamentoVenda.length; i++) {
                 const formaPagamento = await FormasPagamento.findByPk(pagamentoVenda[i].formapgto_id);
-                pagamentoVenda[i].formaPagamento = formaPagamento.nome; // Adiciona o nome da forma de pagamento ao objeto
+                pagamentoVenda[i].formaPagamento = formaPagamento?.nome || null;
             }
 
             return pagamentoVenda;
@@ -51,7 +58,9 @@ class PagamentosService {
             throw new Error('Erro ao buscar pagamento por venda');
         }
     }
+
 }
 
 
 module.exports = PagamentosService;
+

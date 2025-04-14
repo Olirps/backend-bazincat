@@ -61,7 +61,7 @@ class VendasService {
                             venda_id: vendaRegistrada.id,
                             produto_id: item.id,
                             quantity: Number(item.quantidade).toFixed(3),
-                            vlrVenda: item.valorTotal                            ,
+                            vlrVenda: item.valorTotal,
                         }));
                     } else if (itensVendaDireta) {
                         itensVendaRegistrada = itensVendaDireta.map((item) => ({
@@ -138,7 +138,7 @@ class VendasService {
                     chaveAcesso,
                     nNF,
                     cNF,
-                    venda_id: vendaRegistrada?.id ||data?.os_id ,
+                    venda_id: vendaRegistrada?.id || data?.os_id,
                     xml,
                     status: 'ANDAMENTO'
                 });
@@ -255,7 +255,7 @@ class VendasService {
 
     static async consultaVendasDetalhado(filters = {}) {
         try {
-            let { dataInicio, dataFim, clienteNome, cpfCnpj } = filters;
+            let { dataInicio, dataFim, clienteNome, cpfCnpj, tipoVenda } = filters;
             // Construir whereClause base
             let whereClause = {
                 status: 0
@@ -333,7 +333,7 @@ class VendasService {
             const vendasDetalhadas = [];
             for (let venda of vendas) {
                 // Busca os pagamentos relacionados à venda
-                const pagamentos = await Pagamentos.consultaPagamentoPorVenda(venda.id);
+                const pagamentos = await Pagamentos.consultaPagamentoPorVenda(venda.id, tipoVenda);
 
                 // Para cada pagamento, busca a forma de pagamento correspondente
                 const formasComValor = await Promise.all(
@@ -346,17 +346,21 @@ class VendasService {
                     })
                 );
 
-                // Adiciona o desconto como um objeto dentro de formasPagamento
-                const pagamentoComDesconto = [
-                    ...formasComValor,
-                    venda.desconto > 0
-                        ? {
-                            formaPagamento: 'Desconto',
-                            vlrPago: -venda.desconto // Desconto como valor negativo
-                        }
-                        : null
-                ].filter(Boolean); // Remove valores nulos
-
+                let pagamentoComDesconto = []
+                if (tipoVenda == 0 || tipoVenda == null) {
+                    // Adiciona o desconto como um objeto dentro de formasPagamento
+                    pagamentoComDesconto = [
+                        ...formasComValor,
+                        venda.desconto > 0
+                            ? {
+                                formaPagamento: 'Desconto',
+                                vlrPago: -venda.desconto // Desconto como valor negativo
+                            }
+                            : null
+                    ].filter(Boolean); // Remove valores nulos
+                } else {
+                    pagamentoComDesconto = formasComValor;
+                }
                 // Estrutura a venda detalhada
                 vendasDetalhadas.push({
                     id: venda.id,

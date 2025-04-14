@@ -203,6 +203,7 @@ class OSServiceService {
     }
     static async removerProdutoOS(id, osServiceData) {
         try {
+
             const produtoRemovido = await OSProdutosServicos.findByPk(id);
             if (!produtoRemovido) {
                 throw new Error('Ordem de serviço não encontrada');
@@ -322,7 +323,7 @@ class OSServiceService {
             // Atualiza a ordem de serviço no final
             await osService.update({
                 status_id: osServiceData.status_id || osService.status, // Exemplo de atualização do status
-                valor_total: osServiceData.valor_total
+                valor_total: osServiceData.totalPrice
                 // Adicione mais campos para atualização, se necessário
             });
             console.log(`Ordem de serviço ${id} atualizada.`);
