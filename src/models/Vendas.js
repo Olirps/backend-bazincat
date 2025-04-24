@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
-
+const VendasStatus = require('../models/VendasStatus');
+const Funcionarios = require('../models/Funcionarios');
 
 const Vendas = sequelize.define('Vendas', {
     id: {
@@ -35,10 +36,6 @@ const Vendas = sequelize.define('Vendas', {
         type: DataTypes.DECIMAL(10, 3),
         allowNull: true,
     },
-    formaPagamento: {
-        type: DataTypes.ENUM('dinheiro', 'pix', 'cartaoDebito', 'cartaoCredito', 'pedido'),
-        allowNull: true,
-    },
     dataVenda: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -47,6 +44,14 @@ const Vendas = sequelize.define('Vendas', {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
+    status_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: VendasStatus, // Referência à tabela status_transacao
+            key: 'id',
+        },
+    },
     motivo_cancelamento: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -54,7 +59,16 @@ const Vendas = sequelize.define('Vendas', {
     dataCancelamento: {
         type: DataTypes.STRING,
         allowNull: true,
-    }
+    },
+    funcionario_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: Funcionarios, // Referência à tabela status_transacao
+            key: 'id',
+        },
+    },
+
 }, {
     tableName: 'vendas',
     timestamps: true,
@@ -67,6 +81,8 @@ Vendas.associate = (models) => {
     });
 
 };
+Vendas.belongsTo(VendasStatus, { foreignKey: 'status_id' });
+
 
 module.exports = Vendas;
 

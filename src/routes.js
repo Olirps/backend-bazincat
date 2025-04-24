@@ -32,6 +32,8 @@ const OSStatusController = require('./controllers/osStatusController');
 const OSServiceController = require('./controllers/osServiceController');
 
 const FormasPagamentoController = require('./controllers/formasPagamentoController');
+const TefController = require('./controllers/TefController');
+const TipoTransacaoController = require('./controllers/TipoTransacaoController');
 
 
 
@@ -229,5 +231,8 @@ router.post('/formas-pagamento', FormasPagamentoController.criar);
 router.put('/formas-pagamento/:id', FormasPagamentoController.atualizar);
 router.delete('/formas-pagamento/:id', FormasPagamentoController.deletar);
 
+// Rota para Gerenciar TEF
+router.post('/tef/transacao', TefController.criarTransacao);
+router.get('/tef/tipotransacao', TipoTransacaoController.listar);
 
 module.exports = router;
