@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const Banco = require('../models/Banco');
 
 const ContasBancarias = sequelize.define('ContasBancarias', {
     id: {
@@ -9,12 +10,13 @@ const ContasBancarias = sequelize.define('ContasBancarias', {
     },
     banco_id: {
         type: DataTypes.INTEGER,
-        allowNull: true,
         references: {
-            model: 'banco',
-            key: 'id',
+          model: Banco, // <- aqui precisa ser o model, não uma string
+          key: 'id',
         },
-    },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL',
+      },
     nome: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -39,7 +41,13 @@ const ContasBancarias = sequelize.define('ContasBancarias', {
     sequelize,
     modelName: 'ContasBancarias',
     tableName: 'contasbancarias',
-    timestamps: false // Desabilita os timestamps automáticos
+    timestamps: false
+});
+
+// Associações
+ContasBancarias.belongsTo(Banco, {
+    foreignKey: 'banco_id',
+    as: 'Banco'
 });
 
 module.exports = ContasBancarias;

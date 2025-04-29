@@ -14,7 +14,19 @@ class ProdutosController {
             res.status(400).json({ erro: error.message });
         }
     }
+    // Listagem de todos os produtos para venda
+    static async listarProdutosVenda(req, res) {
+        try {
+            const filtros = req.query; // pega filtros da URL (query string)
 
+            const produtos = await ProdutosService.listarProdutosVenda(filtros);
+
+            res.status(200).json(produtos);
+        } catch (error) {
+            console.error('Erro ao listar produtos da view:', error);
+            res.status(500).json({ error: error.message });
+        }
+    }
     // Listagem de todos os produtos
     static async listarProdutos(req, res) {
         try {
@@ -80,7 +92,7 @@ class ProdutosController {
             const fileName = 'export.json';
             res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
             res.setHeader('Content-Type', 'application/json');
-        
+
             // Envia o JSON diretamente
             res.send(produtos);
             //res.status(200).json(produtos);
@@ -98,7 +110,7 @@ class ProdutosController {
             res.status(400).json({ erro: error.message });
         }
     }
-    
+
     static async produtosMaisVendidosSemana(req, res) {
         try {
             const contas = await ProdutoGestaoService.produtosMaisVendidosSemana();

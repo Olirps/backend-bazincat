@@ -62,6 +62,20 @@ class UFMunicipiosController {
     }
   }
 
+  static async getMunicipioById(req, res) {
+    try {
+      const { id } = req.params;
+      const municipio = await UFMunicipiosService.getMunicipioById(id);
+      if (municipio) {
+        res.status(200).json(municipio);
+      } else {
+        res.status(404).json({ error: 'Municipio não encontrado' });
+      }
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+
 }
 
 module.exports = UFMunicipiosController;

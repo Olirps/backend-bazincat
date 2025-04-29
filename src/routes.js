@@ -138,6 +138,7 @@ router.delete('/subgrupoprodutos/:id', SubgrupoprodutoController.excluirSubgrupo
 // Rotas para produtos
 router.post('/produtos', ProdutosController.criarProduto);
 router.get('/produtos', ProdutosController.listarProdutos);
+router.get('/produtos-venda', ProdutosController.listarProdutosVenda);
 router.get('/produtos/vendidos', ProdutosController.consultaProdutosVendidos);
 router.get('/produtos/vendidos-semana', ProdutosController.produtosMaisVendidosSemana);
 router.get('/export/produtos', ProdutosController.exportProdutos);
@@ -184,6 +185,7 @@ router.get('/uf', UFMunicipiosController.obterTodasUF);
 router.get('/municipios/:codUfId', UFMunicipiosController.obterMunicipiosPorUF);
 router.get('/uf/uf/:codIBGE', UFMunicipiosController.obterUFPorId);
 router.get('/municipios/mun/:id', UFMunicipiosController.obterMunicipioPorId);
+router.get('/municipios/id/:id', UFMunicipiosController.getMunicipioById);
 
 //Rotas de Vendas
 router.post('/vendas', VendasController.registraVenda);

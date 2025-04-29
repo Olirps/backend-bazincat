@@ -2,6 +2,8 @@
 const Produtos = require('../models/Produtos');
 const MovimentacoesEstoque = require("../models/MovimentacoesEstoque");
 const ItensNaoIdentificados = require('../models/ItensNaoIdentificados');
+const VwProdutoVenda = require('../models/VwProdutoVenda');
+const { Op } = require('sequelize');
 
 
 class ProdutosService {
@@ -126,6 +128,38 @@ class ProdutosService {
                     status: 1
                 }
             });
+        } catch (error) {
+            throw new Error('Erro ao listar os produtos: ' + error.message);
+        }
+    }
+
+    static async listarProdutosVenda(filtro) {
+        try {
+            const where = { status: 1 };
+
+            if (filtro && filtro.termo) {
+                const termo = filtro.termo;
+
+                where[Op.or] = [
+                    { cod_interno: { [Op.like]: `%${termo}%` } },
+                    { cEAN: { [Op.like]: `%${termo}%` } },
+                    { xProd: { [Op.like]: `%${termo}%` } },
+                ];
+            }
+
+            const page = filtro.page || 1;
+            const limit = 30;
+            const offset = (page - 1) * limit;
+
+            const produtos = await VwProdutoVenda.findAll({
+                where,
+                limit,
+                offset,
+                order: [['xProd', 'ASC']],
+                raw: true,
+            });
+
+            return produtos;
         } catch (error) {
             throw new Error('Erro ao listar os produtos: ' + error.message);
         }

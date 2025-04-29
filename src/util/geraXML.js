@@ -196,7 +196,7 @@ const generateNFCeXML = async (data) => {
             <CEP>${empresa.cep.replace('-', '')}</CEP>
             <cPais>1058</cPais>
             <xPais>BRASIL</xPais>
-            <fone>${empresa.telefone.replace(/\D/g, '' || '')}</fone>
+            <fone>${empresa.celular.replace(/\D/g, '' || '')}</fone>
         </enderEmit>
         <IE>${empresa.inscricao_estadual || 'ISENTO'}</IE>
         <CRT>${empresa.regime_tributario}</CRT>
@@ -209,7 +209,15 @@ const generateNFCeXML = async (data) => {
   // Destinatário (cliente)
   if (data.cliente_id) {
     const cliente = await Clientes.findByPk(data.cliente_id);
-    const municipioCliente = await Municipio.findByPk(cliente.municipio_id);
+    // Alterar para buscar pelo código IBGE do município 28/04/2025;
+    //const municipioCliente = await Municipio.findByPk(cliente.municipio_id);
+    const municipioCliente = await Municipio.findOne(
+      {
+        where: {
+          codMunIBGE: cliente.municipio_id
+        }
+      }
+    );
 
     const ufCliente = await UF.findOne(
       {

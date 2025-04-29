@@ -42,6 +42,14 @@ class UFMunicipiosService {
       throw new Error(err.message);
     }
   }
+  
+  static async getMunicipioById(dados) {
+    try {
+      return await Municipios.findByPk(dados);
+    } catch (err) {
+      throw new Error(err.message);
+    }
+  }
 }
 
 module.exports = UFMunicipiosService;

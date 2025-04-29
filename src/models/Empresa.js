@@ -1,6 +1,8 @@
 // src/models/Empresa.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
+const UF = require('../models/Uf');
+const Municipio = require('../models/Municipio');
 
 const Empresa = sequelize.define('Empresa', {
 
@@ -46,7 +48,7 @@ const Empresa = sequelize.define('Empresa', {
         allowNull: true,
     },
     uf_id: {
-        type: DataTypes.STRING(2),
+        type: DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: 'uf', // Nome da tabela associada
@@ -59,7 +61,7 @@ const Empresa = sequelize.define('Empresa', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'municipio', // Nome da tabela associada
+            model: 'Municipio', // Nome da tabela associada
             key: 'id'
         },
         onUpdate: 'CASCADE',

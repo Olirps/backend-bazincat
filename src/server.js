@@ -20,18 +20,18 @@ app.use('/api', routes);
 app.use('/api/auth', authRoutes); // Usar as rotas de autenticação
 
 // Sincronizar o banco de dados e iniciar o servidor
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3004;
 
 const startServer = (port) => {
   app.listen(port,'0.0.0.0', () => {
     console.log(`Servidor rodando em: http://localhost:${port}`);
   }).on('error', (err) => {
     if (err.code === 'EACCES') {
-      console.error(`Porta ${port} não tem permissão. Tentando usar a porta 3001...`);
-      startServer(3001); // Tentar a porta 3001
+      console.error(`Porta ${port} não tem permissão. Tentando usar a porta 3004...`);
+      startServer(3004); // Tentar a porta 3001
     } else if (err.code === 'EADDRINUSE') {
-      console.error(`Porta ${port} está em uso. Tentando usar a porta 3001...`);
-      startServer(3001); // Tentar a porta 3001
+      console.error(`Porta ${port} está em uso. Tentando usar a porta 3004...`);
+      startServer(3004); // Tentar a porta 3001
     } else {
       console.error(err);
     }

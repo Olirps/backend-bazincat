@@ -74,8 +74,6 @@ const MovimentacaoFinanceira = sequelize.define('MovimentacaoFinanceira', {
     },
     
 }, {
-    sequelize,
-    modelName: 'MovimentacaoFinanceira',
     tableName: 'movimentacaofinanceira',
     timestamps: false // Desabilita os timestamps automáticos
 });

@@ -2,9 +2,9 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'Celeiro - Backend',
+  name:'Bazincat - Backend',
   description: 'Back end das aplicacoes Celeiro',
-  script: 'C:\\Projetos\\apigerencial\\src\\server.js'
+  script: 'C:\\Projetos\\backend-bazincat\\src\\server.js'
 });
 
 // Listen for the "install" event, which indicates the
